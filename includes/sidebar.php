@@ -1,0 +1,117 @@
+<?php
+require_once __DIR__ . '/db.php';
+
+// Fetch latest notifications for the top navigation bell
+if (isLoggedIn()) {
+    global $pdo;
+    $notifStmt = $pdo->prepare("SELECT nr.id as recipient_id, nr.is_read, n.title, n.message, n.icon, n.action_url, n.created_at FROM notification_recipients nr JOIN notifications n ON nr.notification_id = n.id WHERE nr.user_id = ? ORDER BY n.created_at DESC LIMIT 5");
+    $notifStmt->execute([$_SESSION['user_id']]);
+    $latestNotifications = $notifStmt->fetchAll();
+
+    $unreadCountStmt = $pdo->prepare("SELECT COUNT(*) FROM notification_recipients WHERE user_id = ? AND is_read = 0");
+    $unreadCountStmt->execute([$_SESSION['user_id']]);
+    $unreadCount = $unreadCountStmt->fetchColumn();
+}
+?>
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4 class="mb-0 fw-bold d-flex align-items-center">
+                    <i data-lucide="graduation-cap" class="me-2"></i> <?= APP_NAME ?>
+                </h4>
+            </div>
+
+            <ul class="list-unstyled components">
+                <?php if (hasRole('superadmin') || hasRole('admin')): ?>
+                    <li><a href="<?= BASE_URL ?>/admin/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/users.php"><i data-lucide="users"></i> Manage Users</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/trades.php"><i data-lucide="briefcase"></i> Trades</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/subjects.php"><i data-lucide="library"></i> Subjects</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/analytics.php"><i data-lucide="bar-chart-2"></i> Analytics</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/material_analytics.php"><i data-lucide="bar-chart-3"></i> Material Analytics</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/notifications.php"><i data-lucide="bell-ring"></i> Notifications</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/community.php"><i data-lucide="shield-alert"></i> Moderation</a></li>
+                    <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>
+                <?php elseif (hasRole('moderator')): ?>
+                    <li><a href="<?= BASE_URL ?>/moderator/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/material_analytics.php"><i data-lucide="bar-chart-3"></i> Material Analytics</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
+                    <li><a href="#"><i data-lucide="pen-tool"></i> Grade Answers</a></li>
+                    <li><a href="<?= BASE_URL ?>/moderator/community.php"><i data-lucide="shield-alert"></i> Moderation</a></li>
+                    <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>
+                <?php elseif (hasRole('student')): ?>
+                    <li><a href="<?= BASE_URL ?>/student/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/progress.php"><i data-lucide="trending-up"></i> My Progress</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/recommendations.php"><i data-lucide="sparkles"></i> Recommendations</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/bookmarks.php"><i data-lucide="bookmark"></i> Bookmarks</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/exams.php"><i data-lucide="edit-3"></i> My Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/results.php"><i data-lucide="bar-chart"></i> My Results</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
+                    <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg top-navbar">
+                <div class="container-fluid px-0">
+                    <button type="button" id="sidebarCollapse" class="btn btn-light d-md-none border">
+                        <i data-lucide="menu" style="width: 20px; height: 20px; color: #4B5563;"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        
+                        <!-- Notifications Dropdown -->
+                        <div class="dropdown me-4">
+                            <a href="#" class="text-secondary position-relative" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i data-lucide="bell" style="width: 22px; height: 22px;"></i>
+                                <?php if ($unreadCount > 0): ?>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;" id="notifBadge">
+                                        <?= $unreadCount > 99 ? '99+' : $unreadCount ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 pt-0 pb-0" aria-labelledby="notifDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                                <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+                                    <h6 class="mb-0 fw-bold">Notifications</h6>
+                                    <button class="btn btn-sm btn-link text-decoration-none p-0 text-primary fw-semibold" onclick="markAllRead(event)">Mark all read</button>
+                                </div>
+                                <div id="notifContainer">
+                                    <?php foreach ($latestNotifications as $notif): ?>
+                                        <a href="<?= $notif['action_url'] ? htmlspecialchars($notif['action_url']) : '#' ?>" class="dropdown-item p-3 border-bottom text-wrap <?= !$notif['is_read'] ? 'bg-primary bg-opacity-10' : '' ?>" onclick="markRead(event, <?= $notif['recipient_id'] ?>, '<?= htmlspecialchars($notif['action_url'] ?? '') ?>')">
+                                            <div class="d-flex align-items-start">
+                                                <div class="bg-white rounded-circle p-2 shadow-sm border me-3"><i data-lucide="<?= htmlspecialchars($notif['icon']) ?>" class="text-primary" style="width:16px; height:16px;"></i></div>
+                                                <div>
+                                                    <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= htmlspecialchars($notif['title']) ?></div>
+                                                    <div class="text-muted small mb-1" style="line-height: 1.4;"><?= htmlspecialchars($notif['message']) ?></div>
+                                                    <div class="text-secondary" style="font-size: 0.75rem;"><?= timeElapsedString($notif['created_at']) ?></div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    <?php endforeach; ?>
+                                    <?php if(empty($latestNotifications)): ?><div class="p-4 text-center text-muted small">You're all caught up!</div><?php endif; ?>
+                                </div>
+                                <a href="#" class="dropdown-item text-center text-primary fw-bold py-2 bg-light border-top">View All History</a>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center text-dark text-decoration-none">
+                            <div class="avatar-circle me-2">
+                                <?= strtoupper(substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
+                            </div>
+                            <span class="fw-semibold d-none d-sm-inline"><?= htmlspecialchars($_SESSION['full_name'] ?? 'User') ?></span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
