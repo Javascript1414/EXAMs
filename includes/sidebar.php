@@ -4,9 +4,14 @@ require_once __DIR__ . '/db.php';
 // Fetch latest notifications for the top navigation bell
 if (isLoggedIn()) {
     global $pdo;
-    $notifStmt = $pdo->prepare("SELECT nr.id as recipient_id, nr.is_read, n.title, n.message, n.icon, n.action_url, n.created_at FROM notification_recipients nr JOIN notifications n ON nr.notification_id = n.id WHERE nr.user_id = ? ORDER BY n.created_at DESC LIMIT 5");
+    $notifStmt = $pdo->prepare("SELECT nr.id as recipient_id, nr.is_read, n.title, n.message, n.action_url, n.created_at FROM notification_recipients nr JOIN notifications n ON nr.notification_id = n.id WHERE nr.user_id = ? ORDER BY n.created_at DESC LIMIT 5");
     $notifStmt->execute([$_SESSION['user_id']]);
     $latestNotifications = $notifStmt->fetchAll();
+    
+    // Add default icon to each notification
+    foreach ($latestNotifications as &$notif) {
+        $notif['icon'] = 'bell';
+    }
 
     $unreadCountStmt = $pdo->prepare("SELECT COUNT(*) FROM notification_recipients WHERE user_id = ? AND is_read = 0");
     $unreadCountStmt->execute([$_SESSION['user_id']]);

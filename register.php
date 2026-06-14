@@ -96,23 +96,32 @@ $trades = $tradesStmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Student Registration - <?= APP_NAME ?></title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
-    <style>
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #374151; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 1px solid #D1D5DB; border-radius: 4px; box-sizing: border-box; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    </style>
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/register.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #F3F4F6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;">
-    <div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px;">
-        <h2 style="color: #0056D2; margin-top: 0;">Student Registration</h2>
-        <?php if (!empty($errors)) echo '<div style="color: #EF4444; margin-bottom: 15px; padding: 10px; background: #FEE2E2; border-radius: 4px;">' . implode('<br>', $errors) . '</div>'; ?>
+ <body style="font-family: Arial, sans-serif; background-color: #F3F4F6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;"> 
+    <body>
+<!-- <div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px;"> -->
+       <div class="registration-container">
+    <!-- <h2 style="color: #0056D2; margin-top: 0;">Student Registration</h2> -->
+         <h2 class="registration-title">
+    Student Registration
+</h2>
+
+<p class="registration-subtitle">
+    Create your account and start your learning journey
+</p>
+        <?php if (!empty($errors)): ?>
+<div class="error-box">
+    <?= implode('<br>', $errors) ?>
+</div>
+<?php endif; ?>
         
         <form method="POST" action="">
             <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
             
-            <h4 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Required Information</h4>
+            <!-- <h4 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Required Information</h4> -->
+             <h4 class="section-heading">Required Information</h4>
             <div class="form-group"><label>Full Name *</label><input type="text" name="full_name" required></div>
             
             <div class="grid-2">
@@ -162,9 +171,11 @@ $trades = $tradesStmt->fetchAll();
             
             <div class="form-group"><label>Enrollment Number</label><input type="text" name="enrollment_no"></div>
 
-            <button type="submit" style="width: 100%; padding: 12px; background: #0056D2; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px;">Register Account</button>
+            <!-- <button type="submit" style="width: 100%; padding: 12px; background: #0056D2; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px;">Register Account</button> -->
+             <button type="submit" class="btn-register">Register Account</button>
         </form>
-        <p style="text-align: center; margin-top: 15px; font-size: 14px;">Already have an account? <a href="login.php" style="color: #0056D2;">Log In</a></p>
+        <!-- <p style="text-align: center; margin-top: 15px; font-size: 14px;">Already have an account? <a href="login.php" style="color: #0056D2;">Log In</a></p> -->
+<p class="login-link">Already have an account? <a href="login.php" style="color: #0056D2;">Log In</a></p>
     </div>
 </body>
 </html>
