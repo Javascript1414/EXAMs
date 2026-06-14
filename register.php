@@ -99,26 +99,24 @@ $trades = $tradesStmt->fetchAll();
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/register.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
- <body style="font-family: Arial, sans-serif; background-color: #F3F4F6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;"> 
+ <!-- <body style="font-family: Arial, sans-serif; background-color: #F3F4F6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;">  -->
     <body>
-<!-- <div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 600px;"> -->
-       <div class="registration-container">
-    <!-- <h2 style="color: #0056D2; margin-top: 0;">Student Registration</h2> -->
-         <h2 class="registration-title">
-    Student Registration
-</h2>
-
-<p class="registration-subtitle">
-    Create your account and start your learning journey
-</p>
-        <?php if (!empty($errors)): ?>
-<div class="error-box">
-    <?= implode('<br>', $errors) ?>
-</div>
-<?php endif; ?>
-        
-        <form method="POST" action="">
-            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+        <div class="main-container">
+            <div class="left-panel">
+                <h1>Learn.<br>Grow.<br>Succeed.</h1>
+            </div>
+            <div class="registration-container">
+                <h2 class="registration-title">Student Registration</h2>
+                <p class="registration-subtitle">Create your account and start your learning journey</p>
+                
+                <?php if (!empty($errors)): ?>
+                <div class="error-box">
+                    <?= implode('<br>', $errors) ?>
+                </div>
+                <?php endif; ?>
+                
+                <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
             
             <!-- <h4 style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Required Information</h4> -->
              <h4 class="section-heading">Required Information</h4>
@@ -171,11 +169,11 @@ $trades = $tradesStmt->fetchAll();
             
             <div class="form-group"><label>Enrollment Number</label><input type="text" name="enrollment_no"></div>
 
-            <!-- <button type="submit" style="width: 100%; padding: 12px; background: #0056D2; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px;">Register Account</button> -->
-             <button type="submit" class="btn-register">Register Account</button>
-        </form>
-        <!-- <p style="text-align: center; margin-top: 15px; font-size: 14px;">Already have an account? <a href="login.php" style="color: #0056D2;">Log In</a></p> -->
-<p class="login-link">Already have an account? <a href="login.php" style="color: #0056D2;">Log In</a></p>
-    </div>
-</body>
+            <button type="submit" class="btn-register">Register Account</button>
+                </form>
+                
+                <p class="login-link">Already have an account? <a href="login.php">Log In</a></p>
+            </div>
+        </div>
+    </body>
 </html>
