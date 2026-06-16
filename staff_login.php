@@ -56,38 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Login - <?= APP_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/staff_login.css?v=<?= filemtime(__DIR__ . '/assets/css/staff_login.css') ?>">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #1e293b 0%, #00d2ff 100%); /* Slightly darker gradient for staff */
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Inter', sans-serif;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            color: white;
-        }
-        .glass-input {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;
-        }
-        .glass-input::placeholder { color: rgba(255, 255, 255, 0.6); }
-        .glass-input:focus { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5); color: white; box-shadow: none; }
-        .glass-btn {
-            background: #fff; color: #1e293b; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: all 0.3s;
-        }
-        .glass-btn:hover { background: #f8f9fa; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); color: #1e293b; }
-    </style>
 </head>
 <body>
     <div class="glass-card">
@@ -108,6 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div class="mt-4 text-center">
             <a href="login.php" class="text-white text-decoration-none small opacity-75 border-bottom border-light pb-1"><i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Back to Options</a>
+            <br><br>
+            <a href="forgot_password.php" class="text-white text-decoration-none small opacity-75 border-bottom border-light pb-1"><i data-lucide="key" style="width: 14px; height: 14px;"></i> Forgot Password?</a>
         </div>
     </div>
     <script>lucide.createIcons();</script>

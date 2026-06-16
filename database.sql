@@ -111,6 +111,56 @@ CREATE TABLE IF NOT EXISTS `study_materials` (
     INDEX `idx_uploaded_by` (`uploaded_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 8. Community Posts Table
+CREATE TABLE IF NOT EXISTS `community_posts` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `trade_id` INT UNSIGNED NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `content` LONGTEXT NOT NULL,
+    `status` ENUM('active', 'hidden') DEFAULT 'active',
+    `is_locked` BOOLEAN DEFAULT 0,
+    `views` INT DEFAULT 0,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`trade_id`) REFERENCES `trades`(`id`) ON DELETE CASCADE,
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_trade_id` (`trade_id`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. Community Post Comments Table
+CREATE TABLE IF NOT EXISTS `community_post_comments` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `post_id` BIGINT UNSIGNED NOT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `comment` LONGTEXT NOT NULL,
+    `status` ENUM('active', 'hidden') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`post_id`) REFERENCES `community_posts`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    INDEX `idx_post_id` (`post_id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. Community Post Ratings Table
+CREATE TABLE IF NOT EXISTS `community_post_ratings` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `post_id` BIGINT UNSIGNED NOT NULL,
+    `user_id` BIGINT UNSIGNED NOT NULL,
+    `rating` TINYINT(1) NOT NULL COMMENT '1 for like, -1 for dislike',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `unique_post_user_rating` (`post_id`, `user_id`),
+    FOREIGN KEY (`post_id`) REFERENCES `community_posts`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    INDEX `idx_post_id` (`post_id`),
+    INDEX `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Seed Required Roles
 INSERT IGNORE INTO `roles` (`id`, `name`) VALUES 
 (1, 'superadmin'),

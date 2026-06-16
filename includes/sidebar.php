@@ -40,6 +40,7 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/notifications.php"><i data-lucide="bell-ring"></i> Notifications</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/manage_carousel_photos.php"><i data-lucide="image"></i> Carousel Photos</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/community.php"><i data-lucide="shield-alert"></i> Moderation</a></li>
                     <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>
                 <?php elseif (hasRole('moderator')): ?>

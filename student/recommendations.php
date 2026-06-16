@@ -12,7 +12,7 @@ $query = "SELECT sm.*, s.subject_name
           FROM study_materials sm 
           JOIN subjects s ON sm.subject_id = s.id 
           WHERE sm.trade_id = ? 
-          AND sm.id NOT IN (SELECT material_id FROM material_progress WHERE user_id = ?)
+          AND sm.id NOT IN (SELECT material_id FROM study_material_progress WHERE user_id = ?)
           ORDER BY sm.is_featured DESC, sm.average_rating DESC, sm.view_count DESC 
           LIMIT 8";
 $stmt = $pdo->prepare($query);

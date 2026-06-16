@@ -35,25 +35,35 @@ $certificate = $certStmt->fetch();
 
 // Auto-Generate if missing
 if (!$certificate) {
-    $cert_id = 'CERT-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 10));
-    $verify_code = strtoupper(substr(bin2hex(random_bytes(8)), 0, 12));
-    
-    $insert = $pdo->prepare("INSERT INTO certificates (certificate_id, student_id, exam_id, result_id, score, percentage, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $insert->execute([$cert_id, $result['student_id'], $result['exam_id'], $result_id, $result['obtained_marks'], $result['percentage'], $verify_code]);
-    
-    // Flag result table
-    $pdo->prepare("UPDATE results SET certificate_generated = 1 WHERE id = ?")->execute([$result_id]);
-    
-    // Fetch newly generated
-    $certStmt->execute([$result_id]);
-    $certificate = $certStmt->fetch();
+    try {
+        $cert_id = 'CERT-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 10));
+        $verify_code = strtoupper(substr(bin2hex(random_bytes(8)), 0, 12));
+        
+        $insert = $pdo->prepare("INSERT INTO certificates (certificate_id, student_id, exam_id, result_id, score, percentage, verification_code, generated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $generated_by = $_SESSION['user_id'] ?? null;
+        $insert->execute([$cert_id, $result['student_id'], $result['exam_id'], $result_id, $result['obtained_marks'], $result['percentage'], $verify_code, $generated_by]);
+        
+        // Flag result table
+        $pdo->prepare("UPDATE results SET certificate_generated = 1 WHERE id = ?")->execute([$result_id]);
+        
+        // Fetch newly generated
+        $certStmt->execute([$result_id]);
+        $certificate = $certStmt->fetch();
+    } catch (PDOException $e) {
+        error_log("Certificate Generation Error: " . $e->getMessage());
+        die("Error generating certificate. Please try again or contact support.");
+    }
 }
 
 if ($certificate['status'] === 'revoked') {
-    die("This certificate has been revoked by the administration.");
+    die("<div style='text-align:center; padding: 50px; font-family: Arial;'><h3 style='color: #dc3545;'>Certificate Revoked</h3><p>This certificate has been revoked by the administration.</p></div>");
 }
 
-$verify_url = BASE_URL . '/verify.php?code=' . $certificate['verification_code'];
+if (!$certificate || !isset($certificate['certificate_id'])) {
+    die("<div style='text-align:center; padding: 50px; font-family: Arial;'><h3 style='color: #dc3545;'>Error</h3><p>Certificate could not be retrieved. Please contact support.</p></div>");
+}
+
+$verify_url = BASE_URL . '/verify.php?code=' . urlencode($certificate['verification_code']);
 ?>
 <!DOCTYPE html>
 <html lang="en">

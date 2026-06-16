@@ -99,8 +99,15 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     <input type="hidden" name="assignment_method" value="manual">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold mb-0 text-dark">Available Questions for <?= htmlspecialchars($exam['subject_name']) ?></h5>
-                        <button type="submit" class="btn btn-primary"><i data-lucide="save" class="me-2" style="width: 16px;"></i> Save Checked Questions</button>
+                        <button type="submit" class="btn btn-primary" <?= empty($allQuestions) ? 'disabled' : '' ?>><i data-lucide="save" class="me-2" style="width: 16px;"></i> Save Checked Questions</button>
                     </div>
+                    <?php if(empty($allQuestions)): ?>
+                    <div class="alert alert-warning" role="alert">
+                        <i data-lucide="alert-circle" class="me-2" style="width: 18px; display: inline;"></i>
+                        <strong>No Questions Available</strong><br>
+                        No active questions found for this subject. Please <a href="question_add.php" class="alert-link">add questions</a> or <a href="questions.php" class="alert-link">activate existing questions</a> first.
+                    </div>
+                    <?php else: ?>
                     <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
                         <table class="table table-hover table-sm align-middle">
                             <thead class="table-light sticky-top">
@@ -123,11 +130,19 @@ require_once __DIR__ . '/../includes/sidebar.php';
                             </tbody>
                         </table>
                     </div>
+                    <?php endif; ?>
                 </form>
             </div>
             
             <!-- Automatic Assignment Tab -->
             <div class="tab-pane fade" id="auto" role="tabpanel">
+                <?php if(empty($allQuestions)): ?>
+                <div class="alert alert-warning" role="alert">
+                    <i data-lucide="alert-circle" class="me-2" style="width: 18px; display: inline;"></i>
+                    <strong>No Questions Available</strong><br>
+                    Cannot generate exam map - no active questions found for this subject. Please <a href="question_add.php" class="alert-link">add questions</a> first.
+                </div>
+                <?php else: ?>
                 <form method="POST" action="" class="bg-light p-4 rounded border">
                     <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
                     <input type="hidden" name="assignment_method" value="auto">
@@ -143,7 +158,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     </div>
                     <button type="submit" class="btn btn-success fw-bold" onclick="return confirm('This will overwrite any currently mapped questions for this exam. Continue?');"><i data-lucide="zap" class="me-2" style="width: 16px;"></i> Auto-Generate Exam Map</button>
                 </form>
-            </div>
+                <?php endif; ?>
         </div>
     </div>
 </div>

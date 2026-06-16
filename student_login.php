@@ -55,61 +55,165 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login - <?= APP_NAME ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #0056D2 0%, #00d2ff 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Inter', sans-serif;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            color: white;
-        }
-        .glass-input {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;
-        }
-        .glass-input::placeholder { color: rgba(255, 255, 255, 0.6); }
-        .glass-input:focus { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5); color: white; box-shadow: none; }
-        .glass-btn {
-            background: #fff; color: #0056D2; font-weight: 600; border: none; padding: 12px; border-radius: 8px; transition: all 0.3s;
-        }
-        .glass-btn:hover { background: #f8f9fa; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); color: #0056D2; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/student_login.css?v=<?= filemtime(__DIR__ . '/assets/css/student_login.css') ?>">
 </head>
 <body>
-    <div class="glass-card">
-        <div class="text-center mb-4">
-            <i data-lucide="user" style="width: 48px; height: 48px; color: #fff;"></i>
-            <h3 class="fw-bold mt-2">Student Portal</h3>
-            <p class="opacity-75 small">Sign in to access your exams and materials</p>
+    <div class="bubbles-container">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+    <div class="login-container">
+        <!-- LEFT PANEL - DIVINE THEME -->
+        <div class="divine-panel">
+            <div class="deco-lotus deco-om">🕉️</div>
+            <div class="deco-lotus deco-prayer">🙏</div>
+            
+            <div class="divine-content">
+                <div class="divine-icon">📚</div>
+                
+                <div>
+                    <h1>STUDENT<br>PORTAL</h1>
+                </div>
+                
+                <div class="divine-tagline">
+                    "Hare Krishna Hare Krishna Krishna Krishna Hare Hare Hare Rama Hare Rama Rama Rama Hare Hare"<br>
+                    <span style="font-size:16px; opacity:0.9;">Education is the Best Wealth</span>
+                </div>
+                
+                <div class="divine-features">
+                    <div class="feature-item">
+                        <div class="feature-item-icon">🎓</div>
+                        Quality Education
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-item-icon">👨‍🏫</div>
+                        Expert Mentors
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-item-icon">📜</div>
+                        Certification
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-item-icon">💼</div>
+                        Placement Support
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <?php displayFlashMessages(); ?>
-        
-        <form method="POST" action="">
-            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-            <div class="mb-3"><label class="form-label small fw-bold">Email Address</label><input type="email" name="email" class="form-control glass-input" placeholder="student@example.com" required></div>
-            <div class="mb-4"><label class="form-label small fw-bold">Password</label><input type="password" name="password" class="form-control glass-input" placeholder="••••••••" required></div>
-            <button type="submit" class="w-100 glass-btn">Log In</button>
-        </form>
-        
-        <div class="mt-4 text-center">
-            <a href="login.php" class="text-white text-decoration-none small opacity-75 border-bottom border-light pb-1"><i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Back to Options</a>
+
+        <!-- RIGHT PANEL - LOGIN FORM -->
+        <div class="form-panel">
+            <div class="login-form-wrapper">
+                <div class="form-header">
+                    <div class="form-header-icon">🔐</div>
+                    <h2>Welcome Back!</h2>
+                    <p>Sign in to your account</p>
+                </div>
+
+                <?php if (!empty($_SESSION['error_message'])): ?>
+                    <div class="alert-message alert-danger">
+                        <?= htmlspecialchars($_SESSION['error_message']) ?>
+                        <?php unset($_SESSION['error_message']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($_SESSION['success_message'])): ?>
+                    <div class="alert-message alert-success">
+                        <?= htmlspecialchars($_SESSION['success_message']) ?>
+                        <?php unset($_SESSION['success_message']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+
+                    <div class="form-group">
+                        <label>✉️ Email Address</label>
+                        <input type="email" name="email" placeholder="student@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔐 Password</label>
+                        <input type="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit" class="btn-login">Sign In</button>
+                </form>
+
+                <div class="login-links">
+                    <a href="login.php">← Back to Options</a>
+                    <a href="forgot_password.php">🔑 Forgot Password?</a>
+                    <a href="register.php">Create Account</a>
+                </div>
+            </div>
         </div>
     </div>
-    <script>lucide.createIcons();</script>
+
+    <script>
+        // Random Gradient Colors
+        const gradients = [
+            'linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%)',
+            'linear-gradient(135deg,#f093fb 0%,#f5576c 100%)',
+            'linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)',
+            'linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)',
+            'linear-gradient(135deg,#fa709a 0%,#fee140 100%)',
+            'linear-gradient(135deg,#30cfd0 0%,#330867 100%)',
+            'linear-gradient(135deg,#a8edea 0%,#fed6e3 100%)',
+            'linear-gradient(135deg,#ff9466 0%,#ff6b6b 100%)',
+            'linear-gradient(135deg,#4158d0 0%,#c850c0 100%)',
+            'linear-gradient(135deg,#0093e9 0%,#80d0c7 100%)',
+            'linear-gradient(135deg,#fccb90 0%,#d57eeb 100%)',
+            'linear-gradient(135deg,#ff6e7f 0%,#bfe9ff 100%)',
+            'linear-gradient(135deg,#a1c4fd 0%,#c2e9fb 100%)',
+            'linear-gradient(135deg,#fa709a 0%,#fee140 100%)',
+            'linear-gradient(135deg,#30cfd0 0%,#330867 100%)',
+            'linear-gradient(135deg,#a8edea 0%,#fed6e3 100%)',
+            'linear-gradient(135deg,#ff9a56 0%,#ff6a88 100%)',
+            'linear-gradient(135deg,#2e2e78 0%,#662d8c 100%)',
+            'linear-gradient(135deg,#1fa2ff 0%,#12d8fa 100%)',
+            'linear-gradient(135deg,#a370f0 0%,#6b24ea 100%)',
+            'linear-gradient(135deg,#f43b47 0%,#453a94 100%)',
+            'linear-gradient(135deg,#eb3b5a 0%,#fc5c65 100%)'
+        ];
+
+        function getRandomGradient() {
+            return gradients[Math.floor(Math.random() * gradients.length)];
+        }
+
+        function applyRandomGradient() {
+            const divinePanel = document.querySelector('.divine-panel');
+            if (divinePanel) {
+                divinePanel.style.background = getRandomGradient();
+            }
+        }
+
+        window.addEventListener('load', applyRandomGradient);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyRandomGradient);
+        } else {
+            applyRandomGradient();
+        }
+    </script>
 </body>
 </html>

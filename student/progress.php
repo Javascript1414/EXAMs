@@ -9,7 +9,7 @@ $userTrade = $tradeStmt->fetchColumn();
 
 $query = "SELECT s.id, s.subject_name, 
             (SELECT COUNT(*) FROM study_materials sm WHERE sm.subject_id = s.id) as total_materials,
-            (SELECT COUNT(*) FROM material_progress mp JOIN study_materials sm2 ON mp.material_id = sm2.id WHERE sm2.subject_id = s.id AND mp.user_id = ? AND mp.is_completed = 1) as completed_materials
+            (SELECT COUNT(*) FROM study_material_progress mp JOIN study_materials sm2 ON mp.material_id = sm2.id WHERE sm2.subject_id = s.id AND mp.user_id = ? AND mp.is_completed = 1) as completed_materials
           FROM subjects s 
           WHERE s.trade_id = ?";
 $stmt = $pdo->prepare($query);

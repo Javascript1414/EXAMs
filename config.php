@@ -16,6 +16,9 @@ define('DB_NAME', 'exams_lms');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
+// Timezone Configuration
+date_default_timezone_set('Asia/Kolkata'); // Set to your server timezone
+
 // Application Settings
 define('BASE_URL', 'http://localhost/EXAMs');
 define('APP_NAME', 'CITS LMS');

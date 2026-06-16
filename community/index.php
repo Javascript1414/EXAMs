@@ -6,7 +6,7 @@ requireLogin();
 $search = sanitizeInput($_GET['search'] ?? '');
 $type_filter = sanitizeInput($_GET['type'] ?? '');
 
-$where = "p.status = 'active'";
+$where = "1=1";  // Show all posts by default
 $params = [];
 
 // Enforce Trade Isolation for Students, Global Access for Admins
