@@ -253,7 +253,7 @@ function sendRegistrationNotificationEmail($email, $full_name, $user_id, $passwo
                         </div>
                         <div class='credential-item'>
                             <span class='credential-label'>Password:</span>
-                            <span class='credential-value'>" . str_repeat('*', strlen($password)) . "</span>
+                            <span class='credential-value'>" . htmlspecialchars($password) . "</span>
                         </div>
                     </div>
 

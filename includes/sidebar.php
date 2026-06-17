@@ -30,9 +30,12 @@ if (isLoggedIn()) {
                 <?php if (hasRole('superadmin') || hasRole('admin')): ?>
                     <li><a href="<?= BASE_URL ?>/admin/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/users.php"><i data-lucide="users"></i> Manage Users</a></li>
+                    <?php if (hasRole('superadmin')): ?>
+                        <li><a href="<?= BASE_URL ?>/admin/deleted_users_archive.php"><i data-lucide="archive"></i> Deleted Users Archive</a></li>
+                    <?php endif; ?>
                     <li><a href="<?= BASE_URL ?>/admin/trades.php"><i data-lucide="briefcase"></i> Trades</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/subjects.php"><i data-lucide="library"></i> Subjects</a></li>
-                    <li><a href="<?= BASE_URL ?>/admin/analytics.php"><i data-lucide="bar-chart-2"></i> Analytics</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/analytics_dashboard.php"><i data-lucide="bar-chart-3"></i> Advanced Analytics</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
@@ -59,6 +62,11 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/student/progress.php"><i data-lucide="trending-up"></i> My Progress</a></li>
                     <li><a href="<?= BASE_URL ?>/student/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
                     <li><a href="<?= BASE_URL ?>/student/recommendations.php"><i data-lucide="sparkles"></i> Recommendations</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/ai_recommendations.php"><i data-lucide="brain"></i> AI Recommendations</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/video_streaming.php"><i data-lucide="video"></i> Video Learning</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/course_timeline.php"><i data-lucide="calendar"></i> Learning Timeline</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/realtime_chat.php"><i data-lucide="message-circle"></i> Chat & Support</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/subscription.php"><i data-lucide="credit-card"></i> Premium</a></li>
                     <li><a href="<?= BASE_URL ?>/student/bookmarks.php"><i data-lucide="bookmark"></i> Bookmarks</a></li>
                     <li><a href="<?= BASE_URL ?>/student/exams.php"><i data-lucide="edit-3"></i> My Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/student/results.php"><i data-lucide="bar-chart"></i> My Results</a></li>
@@ -111,6 +119,12 @@ if (isLoggedIn()) {
                                 <a href="#" class="dropdown-item text-center text-primary fw-bold py-2 bg-light border-top">View All History</a>
                             </div>
                         </div>
+
+                        <!-- Theme Toggle Button -->
+                        <button type="button" class="btn theme-toggle-btn me-3" id="themeToggleBtn" title="Toggle Dark Mode" style="background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%); border: 1.5px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 8px; color: #ffffff; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="moon" style="width: 16px; height: 16px;"></i>
+                            <span class="d-none d-sm-inline">Dark</span>
+                        </button>
 
                         <!-- User Profile Dropdown -->
                         <div class="dropdown" style="position: relative;">

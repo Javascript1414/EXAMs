@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database ER Diagram Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; }
+        .diagram { border: 1px solid #ddd; padding: 20px; margin: 20px 0; background: white; }
+        .controls { margin: 20px 0; }
+        button { padding: 10px 20px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0052a3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Database ER Diagram - exams_lms</h1>
+        
+        <div class="controls">
+            <button onclick="downloadDiagram()">📥 Download as PNG</button>
+            <button onclick="copyMermaidCode()">📋 Copy Mermaid Code</button>
+        </div>
+        
+        <div id="diagramContainer" class="diagram">
+            <div class="mermaid">
+erDiagram
+    ROLES ||--o{ USERS : "role_id"
+    TRADES ||--o{ USERS : "trade_id"
+    USERS ||--o{ OTP_VERIFICATIONS : "user_id"
+    USERS ||--o{ NOTIFICATIONS : "user_id"
+    USERS ||--o{ STUDY_MATERIAL_PROGRESS : "user_id"
+    USERS ||--o{ EXAM_ATTEMPTS : "user_id"
+    USERS ||--o{ EXAM_ANSWERS : "user_id"
+    USERS ||--o{ RESULTS : "user_id"
+    USERS ||--o{ CERTIFICATES : "user_id"
+    USERS ||--o{ COMMUNITY_POSTS : "user_id"
+    USERS ||--o{ COMMUNITY_COMMENTS : "user_id"
+    USERS ||--o{ LOGIN_LOGS : "user_id"
+    SUBJECTS ||--o{ STUDY_MATERIALS : "subject_id"
+    STUDY_MATERIALS ||--o{ STUDY_MATERIAL_PROGRESS : "material_id"
+    EXAMS ||--o{ EXAM_QUESTIONS : "exam_id"
+    EXAMS ||--o{ EXAM_ATTEMPTS : "exam_id"
+    QUESTIONS ||--o{ EXAM_QUESTIONS : "question_id"
+    QUESTIONS ||--o{ EXAM_ANSWERS : "question_id"
+    EXAM_ATTEMPTS ||--o{ EXAM_ANSWERS : "attempt_id"
+    RESULTS ||--o{ CERTIFICATES : "result_id"
+    COMMUNITY_POSTS ||--o{ COMMUNITY_COMMENTS : "post_id"
+    COMMUNITY_POSTS ||--o{ COMMUNITY_REPORTS : "post_id"
+            </div>
+        </div>
+
+        <h2>Database Tables Summary</h2>
+        <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #f0f0f0;">
+                <th>Table Name</th>
+                <th>Description</th>
+                <th>Primary Key</th>
+                <th>Relationships</th>
+            </tr>
+            <tr>
+                <td><strong>roles</strong></td>
+                <td>User roles (admin, student, moderator, superadmin)</td>
+                <td>id (INT)</td>
+                <td>→ users</td>
+            </tr>
+            <tr>
+                <td><strong>trades</strong></td>
+                <td>Trade/Course categories</td>
+                <td>id (INT)</td>
+                <td>→ users</td>
+            </tr>
+            <tr>
+                <td><strong>users</strong></td>
+                <td>User accounts (students, admins, etc.)</td>
+                <td>id (BIGINT)</td>
+                <td>← roles, trades; → multiple tables</td>
+            </tr>
+            <tr>
+                <td><strong>subjects</strong></td>
+                <td>Course subjects</td>
+                <td>id (INT)</td>
+                <td>→ study_materials</td>
+            </tr>
+            <tr>
+                <td><strong>study_materials</strong></td>
+                <td>Learning materials (PDFs, videos, etc.)</td>
+                <td>id (BIGINT)</td>
+                <td>← subjects; → study_material_progress</td>
+            </tr>
+            <tr>
+                <td><strong>study_material_progress</strong></td>
+                <td>User progress on materials</td>
+                <td>id (BIGINT)</td>
+                <td>← users, study_materials</td>
+            </tr>
+            <tr>
+                <td><strong>questions</strong></td>
+                <td>Question bank</td>
+                <td>id (BIGINT)</td>
+                <td>→ exam_questions, exam_answers</td>
+            </tr>
+            <tr>
+                <td><strong>exams</strong></td>
+                <td>Exam configurations</td>
+                <td>id (BIGINT)</td>
+                <td>→ exam_questions, exam_attempts</td>
+            </tr>
+            <tr>
+                <td><strong>exam_questions</strong></td>
+                <td>Questions in each exam</td>
+                <td>id (BIGINT)</td>
+                <td>← exams, questions</td>
+            </tr>
+            <tr>
+                <td><strong>exam_attempts</strong></td>
+                <td>User exam attempts</td>
+                <td>id (BIGINT)</td>
+                <td>← users, exams; → exam_answers, results</td>
+            </tr>
+            <tr>
+                <td><strong>exam_answers</strong></td>
+                <td>User answers during attempts</td>
+                <td>id (BIGINT)</td>
+                <td>← users, questions, exam_attempts</td>
+            </tr>
+            <tr>
+                <td><strong>results</strong></td>
+                <td>Exam results</td>
+                <td>id (BIGINT)</td>
+                <td>← users, exam_attempts; → certificates</td>
+            </tr>
+            <tr>
+                <td><strong>certificates</strong></td>
+                <td>User certificates</td>
+                <td>id (BIGINT)</td>
+                <td>← users, results</td>
+            </tr>
+            <tr>
+                <td><strong>community_posts</strong></td>
+                <td>User forum posts</td>
+                <td>id (BIGINT)</td>
+                <td>← users; → community_comments, community_reports</td>
+            </tr>
+            <tr>
+                <td><strong>community_comments</strong></td>
+                <td>Comments on posts</td>
+                <td>id (BIGINT)</td>
+                <td>← users, community_posts</td>
+            </tr>
+            <tr>
+                <td><strong>community_reports</strong></td>
+                <td>Post reports (moderation)</td>
+                <td>id (BIGINT)</td>
+                <td>← community_posts</td>
+            </tr>
+            <tr>
+                <td><strong>otp_verifications</strong></td>
+                <td>OTP codes for verification</td>
+                <td>id (BIGINT)</td>
+                <td>← users</td>
+            </tr>
+            <tr>
+                <td><strong>notifications</strong></td>
+                <td>User notifications</td>
+                <td>id (BIGINT)</td>
+                <td>← users</td>
+            </tr>
+            <tr>
+                <td><strong>login_logs</strong></td>
+                <td>User login history</td>
+                <td>id (BIGINT)</td>
+                <td>← users</td>
+            </tr>
+            <tr>
+                <td><strong>analytics_user_progress</strong></td>
+                <td>User analytics/progress tracking</td>
+                <td>id (BIGINT)</td>
+                <td>-</td>
+            </tr>
+        </table>
+
+        <h2>Key Statistics</h2>
+        <ul>
+            <li><strong>Total Tables:</strong> 20+</li>
+            <li><strong>Primary Keys:</strong> All tables have unique identifiers</li>
+            <li><strong>Foreign Keys:</strong> 20+ relationships defined</li>
+            <li><strong>Database:</strong> exams_lms</li>
+            <li><strong>Charset:</strong> utf8mb4 (Unicode support)</li>
+            <li><strong>Engine:</strong> InnoDB (Transactions, Foreign Keys)</li>
+        </ul>
+
+        <h2>Entity Relationships</h2>
+        <ul>
+            <li><strong>Users</strong> is the central entity, connected to most other tables</li>
+            <li><strong>1-to-Many relationships:</strong>
+                <ul>
+                    <li>Role → Users (one role, many users)</li>
+                    <li>Trade → Users (one trade, many users)</li>
+                    <li>Subject → Study Materials</li>
+                    <li>Exam → Exam Questions, Exam Attempts</li>
+                    <li>Community Post → Comments, Reports</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        mermaid.contentLoaded();
+
+        function downloadDiagram() {
+            alert('To download as image:\n1. Open browser DevTools (F12)\n2. Go to Console\n3. Use: mermaid.render("diagram", code).then(({svg}) => { download SVG or convert to PNG }\n\nAlternatively, visit: https://mermaid.live/');
+        }
+
+        function copyMermaidCode() {
+            const code = document.querySelector('.mermaid').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Mermaid code copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

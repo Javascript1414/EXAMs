@@ -1,0 +1,295 @@
+/**
+ * Analytics Dashboard Styles
+ * Enhanced styling for charts, cards, and components
+ */
+
+/* Quick Stats Cards */
+.stats-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+body[data-theme="dark"] .stats-card {
+    background: linear-gradient(135deg, #252a33 0%, #1a1d23 100%);
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(88, 101, 242, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.stats-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+body[data-theme="dark"] .stats-card:hover {
+    box-shadow: 0 15px 40px rgba(88, 101, 242, 0.2);
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 350px;
+    margin-bottom: 20px;
+}
+
+/* Card Enhancements */
+.card {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body[data-theme="dark"] .card {
+    background: #252a33;
+    border-color: #3a3f47;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+body[data-theme="dark"] .card:hover {
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.15);
+}
+
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    border-radius: 12px 12px 0 0;
+}
+
+body[data-theme="dark"] .card-header {
+    background: #1a1d23;
+    border-bottom-color: #3a3f47;
+}
+
+/* Table Styling */
+.table {
+    color: #333333;
+    margin-bottom: 0;
+}
+
+body[data-theme="dark"] .table {
+    color: #e4e6eb;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+body[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: #2a2f37;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+body[data-theme="dark"] .table thead th {
+    border-bottom-color: #3a3f47;
+}
+
+/* Progress Bars */
+.progress {
+    background-color: #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+body[data-theme="dark"] .progress {
+    background-color: #1a1d23;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #5865f2 0%, #7289da 100%);
+    transition: width 0.6s ease;
+}
+
+/* Badges */
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge-primary {
+    background-color: #5865f2;
+    color: white;
+}
+
+.badge-success {
+    background-color: #43b581;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #faa61a;
+    color: white;
+}
+
+.badge-info {
+    background-color: #00b0f4;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #f04747;
+    color: white;
+}
+
+/* Form Elements */
+.form-control,
+.form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .form-control,
+body[data-theme="dark"] .form-select {
+    background-color: #1a1d23;
+    color: #e4e6eb;
+    border-color: #3a3f47;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #5865f2;
+    box-shadow: 0 0 0 0.2rem rgba(88, 101, 242, 0.25);
+}
+
+body[data-theme="dark"] .form-control:focus,
+body[data-theme="dark"] .form-select:focus {
+    background-color: #1a1d23;
+    color: #e4e6eb;
+    box-shadow: 0 0 0 0.2rem rgba(88, 101, 242, 0.35);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #5865f2 0%, #7289da 100%);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+    background: linear-gradient(135deg, #7289da 0%, #5865f2 100%);
+}
+
+.btn-outline-primary {
+    color: #5865f2;
+    border: 1.5px solid #5865f2;
+}
+
+.btn-outline-primary:hover {
+    background-color: #5865f2;
+    color: white;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stats-card {
+    animation: slideIn 0.6s ease-out;
+}
+
+/* List Group Enhancements */
+.list-group-item {
+    background-color: transparent;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+body[data-theme="dark"] .list-group-item {
+    border-color: #3a3f47;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    border-color: #5865f2;
+}
+
+body[data-theme="dark"] .list-group-item:hover {
+    background-color: #2a2f37;
+    border-color: #5865f2;
+}
+
+/* Icon Styling */
+[data-lucide] {
+    color: currentColor;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 15px;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    .card {
+        margin-bottom: 15px;
+    }
+
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.25em;
+}

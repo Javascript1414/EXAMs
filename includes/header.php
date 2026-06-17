@@ -1,9 +1,35 @@
 <?php
 // Ensure core functions and session are loaded
 require_once __DIR__ . '/functions.php';
+
+// Get user's theme preference if logged in
+$userTheme = 'light';
+$userDashboardView = 'grid';
+$userLanguage = 'en';
+
+if (isLoggedIn()) {
+    try {
+        require_once __DIR__ . '/student_settings_functions.php';
+        $prefs = getStudentPreferences($_SESSION['user_id']);
+        if (is_array($prefs)) {
+            $userTheme = $prefs['theme'] ?? 'light';
+            $userDashboardView = $prefs['dashboard_view'] ?? 'grid';
+            $userLanguage = $prefs['language'] ?? 'en';
+        }
+    } catch (Exception $e) {
+        // Preferences not available, use defaults
+    }
+}
+
+// Build HTML classes
+$htmlClasses = [];
+if ($userTheme === 'dark') $htmlClasses[] = 'dark-mode';
+if ($userTheme === 'auto') $htmlClasses[] = 'auto-theme';
+if ($userDashboardView !== 'grid') $htmlClasses[] = 'dashboard-' . htmlspecialchars($userDashboardView);
+$classAttr = !empty($htmlClasses) ? ' class="' . implode(' ', $htmlClasses) . '"' : '';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $userLanguage ?>"<?= $classAttr ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +37,25 @@ require_once __DIR__ . '/functions.php';
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Dark Mode Theme CSS -->
+    <link href="/assets/css/dark-mode.css" rel="stylesheet">
+    <!-- Analytics Dashboard CSS -->
+    <link href="/assets/css/analytics.css" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <script>
+        // Store user preferences for JavaScript access
+        window.userPreferences = {
+            theme: '<?= htmlspecialchars($userTheme) ?>',
+            dashboardView: '<?= htmlspecialchars($userDashboardView) ?>',
+            language: '<?= htmlspecialchars($userLanguage) ?>'
+        };
+    </script>
+    
     <style>
         body { background-color: #F3F4F6; font-family: 'Inter', 'Segoe UI', sans-serif; overflow-x: hidden; }
+        html.dark-mode body { background-color: #1a1a1a !important; color: #e0e0e0 !important; }
         .wrapper { display: flex; width: 100%; align-items: stretch; min-height: 100vh; }
         
         /* Gradient Sidebar */
@@ -429,6 +469,194 @@ require_once __DIR__ . '/functions.php';
         .user-dropdown-trigger[aria-expanded="true"] i {
             transform: rotate(180deg) scale(1.1);
         }
+        
+        /* ===== DARK MODE THEME ===== */
+        html.dark-mode,
+        html.dark-mode body {
+            --bs-body-bg: #1a1a1a;
+            --bs-body-color: #e0e0e0;
+        }
+        
+        html.dark-mode body { 
+            background-color: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+        
+        html.dark-mode #content {
+            background-color: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+        
+        html.dark-mode .card {
+            background-color: #2d2d2d !important;
+            color: #e0e0e0 !important;
+            border: 1px solid #3d3d3d !important;
+        }
+        
+        html.dark-mode .form-control,
+        html.dark-mode .form-select,
+        html.dark-mode select.select-control {
+            background-color: #2d2d2d !important;
+            color: #e0e0e0 !important;
+            border-color: #3d3d3d !important;
+        }
+        
+        html.dark-mode .form-control:focus,
+        html.dark-mode .form-select:focus,
+        html.dark-mode select.select-control:focus {
+            background-color: #2d2d2d !important;
+            color: #e0e0e0 !important;
+            border-color: #0056D2 !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 86, 210, 0.25) !important;
+        }
+        
+        html.dark-mode .table {
+            color: #e0e0e0;
+            border-color: #3d3d3d;
+        }
+        
+        html.dark-mode .table thead th {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-color: #3d3d3d;
+        }
+        
+        html.dark-mode .table tbody tr {
+            border-color: #3d3d3d;
+        }
+        
+        html.dark-mode .table tbody tr:hover {
+            background-color: #3d3d3d;
+        }
+        
+        html.dark-mode h1, html.dark-mode h2, html.dark-mode h3, 
+        html.dark-mode h4, html.dark-mode h5, html.dark-mode h6,
+        html.dark-mode .heading,
+        html.dark-mode p,
+        html.dark-mode label,
+        html.dark-mode span {
+            color: #e0e0e0 !important;
+        }
+        
+        html.dark-mode .text-muted {
+            color: #a0a0a0 !important;
+        }
+        
+        html.dark-mode .badge {
+            background-color: #3d3d3d;
+            color: #e0e0e0;
+        }
+        
+        html.dark-mode .btn-light {
+            background-color: #3d3d3d;
+            color: #e0e0e0;
+            border-color: #3d3d3d;
+        }
+        
+        html.dark-mode .btn-light:hover {
+            background-color: #4d4d4d;
+            color: #e0e0e0;
+            border-color: #4d4d4d;
+        }
+        
+        html.dark-mode .alert {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-color: #3d3d3d;
+        }
+        
+        /* ===== COMPACT DASHBOARD VIEW ===== */
+        html.dashboard-compact .setting-item {
+            padding: 8px 0 !important;
+        }
+        
+        html.dashboard-compact .card {
+            margin-bottom: 8px !important;
+        }
+        
+        /* ===== LIST DASHBOARD VIEW ===== */
+        html.dashboard-list .grid-layout {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        html.dashboard-list .grid-layout > * {
+            margin-bottom: 10px !important;
+        }
+        
+        /* ===== THEME TOGGLE BUTTON ===== */
+        .theme-toggle-btn {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%) !important;
+            border: 1.5px solid rgba(255,255,255,0.3) !important;
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 8px 12px !important;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .theme-toggle-btn:hover::before {
+            left: 100%;
+        }
+        
+        .theme-toggle-btn:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.2) 100%) !important;
+            border-color: rgba(255,255,255,0.5) !important;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .theme-toggle-btn:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-toggle-btn i {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: spin-once 0.6s ease-in-out;
+        }
+        
+        .theme-toggle-btn:hover i {
+            transform: rotate(180deg) scale(1.2);
+        }
+        
+        @keyframes spin-once {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Dark Mode - Theme Toggle Button */
+        body[data-theme="dark"] .theme-toggle-btn {
+            background: linear-gradient(135deg, rgba(100,150,255,0.3) 0%, rgba(50,100,255,0.2) 100%) !important;
+            border-color: rgba(100,150,255,0.5) !important;
+            color: #e0e0e0 !important;
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+        }
+        
+        body[data-theme="dark"] .theme-toggle-btn:hover {
+            background: linear-gradient(135deg, rgba(100,150,255,0.4) 0%, rgba(50,100,255,0.3) 100%) !important;
+            border-color: rgba(100,150,255,0.7) !important;
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4);
+        }
     </style>
     
     <script>
@@ -491,7 +719,49 @@ require_once __DIR__ . '/functions.php';
             root.style.setProperty('--theme-primary-rgb', hexToRgb(randomTheme.primary));
             root.style.setProperty('--theme-secondary-rgb', hexToRgb(randomTheme.secondary));
         });
+        
+        // Theme Application Function - Called after preference updates
+        function applyUserPreferences() {
+            if (window.userPreferences) {
+                const html = document.documentElement;
+                const { theme, dashboardView } = window.userPreferences;
+                
+                // Remove existing theme classes
+                html.classList.remove('dark-mode', 'auto-theme');
+                
+                // Apply new theme
+                if (theme === 'dark') {
+                    html.classList.add('dark-mode');
+                } else if (theme === 'auto') {
+                    // Check system preference
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        html.classList.add('dark-mode');
+                    }
+                }
+                
+                // Update dashboard view classes
+                html.classList.remove('dashboard-list', 'dashboard-compact');
+                if (dashboardView === 'list') {
+                    html.classList.add('dashboard-list');
+                } else if (dashboardView === 'compact') {
+                    html.classList.add('dashboard-compact');
+                }
+            }
+        }
+        
+        // Apply preferences immediately on page load
+        applyUserPreferences();
+        
+        // Listen for preference updates from settings
+        document.addEventListener('preferenceUpdated', function(e) {
+            if (e.detail && e.detail.field && e.detail.value) {
+                window.userPreferences[e.detail.field] = e.detail.value;
+                applyUserPreferences();
+            }
+        });
     </script>
+    <!-- Dark Mode Manager -->
+    <script src="/assets/js/dark-mode.js"></script>
 </head>
 <body>
     <div class="wrapper">

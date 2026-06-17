@@ -1,0 +1,373 @@
+/* Dark Mode Theme CSS */
+/* Apply to body or html element when dark mode is active */
+
+:root[data-theme="dark"] {
+    /* Background Colors */
+    --bg-primary: #1a1d23;
+    --bg-secondary: #242730;
+    --bg-tertiary: #2d3139;
+    --bg-hover: #36393f;
+    
+    /* Text Colors */
+    --text-primary: #e4e6eb;
+    --text-secondary: #b0b3b9;
+    --text-tertiary: #72767d;
+    
+    /* Component Colors */
+    --card-bg: #2d3139;
+    --input-bg: #40444b;
+    --input-border: #40444b;
+    --input-text: #e4e6eb;
+    
+    /* Accent Colors */
+    --primary: #5865f2;
+    --primary-hover: #4752c4;
+    --secondary: #43b581;
+    --success: #43b581;
+    --danger: #f04747;
+    --warning: #faa61a;
+    --info: #00b0f4;
+    
+    /* Border Colors */
+    --border-color: #40444b;
+}
+
+/* Dark Mode Body */
+body[data-theme="dark"] {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .container,
+body[data-theme="dark"] .container-fluid {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Dark Mode Cards */
+body[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .card-header {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .card-body {
+    color: var(--text-primary);
+}
+
+/* Dark Mode Text */
+body[data-theme="dark"] .text-dark {
+    color: var(--text-primary) !important;
+}
+
+body[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+body[data-theme="dark"] h1,
+body[data-theme="dark"] h2,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] h4,
+body[data-theme="dark"] h5,
+body[data-theme="dark"] h6 {
+    color: var(--text-primary);
+}
+
+/* Dark Mode Forms */
+body[data-theme="dark"] .form-control,
+body[data-theme="dark"] .form-select,
+body[data-theme="dark"] textarea {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+}
+
+body[data-theme="dark"] .form-control:focus,
+body[data-theme="dark"] .form-select:focus,
+body[data-theme="dark"] textarea:focus {
+    background-color: var(--input-bg);
+    border-color: var(--primary);
+    color: var(--input-text);
+    box-shadow: 0 0 0 0.2rem rgba(88, 101, 242, 0.25);
+}
+
+body[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-tertiary);
+}
+
+/* Dark Mode Buttons */
+body[data-theme="dark"] .btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+body[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Dark Mode Tables */
+body[data-theme="dark"] .table {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+body[data-theme="dark"] .table thead th {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .table tbody tr {
+    border-color: var(--border-color);
+}
+
+body[data-theme="dark"] .table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Dark Mode Alerts */
+body[data-theme="dark"] .alert {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .alert-light {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+body[data-theme="dark"] .alert-info {
+    background-color: rgba(0, 176, 244, 0.15);
+    border-color: rgba(0, 176, 244, 0.3);
+    color: #00b0f4;
+}
+
+body[data-theme="dark"] .alert-success {
+    background-color: rgba(67, 181, 129, 0.15);
+    border-color: rgba(67, 181, 129, 0.3);
+    color: #43b581;
+}
+
+body[data-theme="dark"] .alert-danger {
+    background-color: rgba(240, 71, 71, 0.15);
+    border-color: rgba(240, 71, 71, 0.3);
+    color: #f04747;
+}
+
+body[data-theme="dark"] .alert-warning {
+    background-color: rgba(250, 166, 26, 0.15);
+    border-color: rgba(250, 166, 26, 0.3);
+    color: #faa61a;
+}
+
+/* Dark Mode Navbar */
+body[data-theme="dark"] .navbar {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+body[data-theme="dark"] .navbar-brand,
+body[data-theme="dark"] .nav-link {
+    color: var(--text-primary) !important;
+}
+
+body[data-theme="dark"] .nav-link:hover {
+    color: var(--primary) !important;
+}
+
+/* Dark Mode Sidebar */
+body[data-theme="dark"] .sidebar {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-right: 1px solid var(--border-color);
+}
+
+body[data-theme="dark"] .nav-link {
+    color: var(--text-secondary);
+}
+
+body[data-theme="dark"] .nav-link:hover,
+body[data-theme="dark"] .nav-link.active {
+    background-color: var(--bg-tertiary);
+    color: var(--primary);
+}
+
+/* Dark Mode Dropdowns */
+body[data-theme="dark"] .dropdown-menu {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+body[data-theme="dark"] .dropdown-item {
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .dropdown-item:hover,
+body[data-theme="dark"] .dropdown-item.active {
+    background-color: var(--bg-tertiary);
+    color: var(--primary);
+}
+
+body[data-theme="dark"] .dropdown-divider {
+    border-color: var(--border-color);
+}
+
+/* Dark Mode Modal */
+body[data-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .modal-header {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .modal-body {
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .close {
+    color: var(--text-primary);
+}
+
+/* Dark Mode Pagination */
+body[data-theme="dark"] .pagination .page-link {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .pagination .page-link:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+body[data-theme="dark"] .pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Dark Mode Badge */
+body[data-theme="dark"] .badge {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Dark Mode Progress Bar */
+body[data-theme="dark"] .progress {
+    background-color: var(--bg-tertiary);
+}
+
+/* Dark Mode Lists */
+body[data-theme="dark"] .list-group-item {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body[data-theme="dark"] .list-group-item:hover {
+    background-color: var(--bg-hover);
+}
+
+body[data-theme="dark"] .list-group-item.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Dark Mode Code */
+body[data-theme="dark"] code,
+body[data-theme="dark"] pre {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Dark Mode Links */
+body[data-theme="dark"] a {
+    color: var(--primary);
+}
+
+body[data-theme="dark"] a:hover {
+    color: var(--primary-hover);
+}
+
+/* Dark Mode Borders */
+body[data-theme="dark"] .border {
+    border-color: var(--border-color) !important;
+}
+
+body[data-theme="dark"] .border-top,
+body[data-theme="dark"] .border-bottom,
+body[data-theme="dark"] .border-start,
+body[data-theme="dark"] .border-end {
+    border-color: var(--border-color) !important;
+}
+
+/* Dark Mode Theme Toggle Button */
+.theme-toggle {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 0.5rem;
+}
+
+body[data-theme="dark"] .theme-toggle {
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.theme-toggle:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Dark Mode Scrollbar */
+body[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+body[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* Smooth transitions for theme switching */
+body,
+body * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Prevent transition on certain elements for smoothness */
+body img,
+body svg,
+body i {
+    transition: none !important;
+}

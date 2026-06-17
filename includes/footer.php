@@ -3,6 +3,8 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Dark Mode Manager -->
+    <script src="/assets/js/dark-mode.js"></script>
     
     <script>
         // Initialize Lucide Icons

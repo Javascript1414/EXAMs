@@ -111,6 +111,8 @@ foreach ($data as $i => $row) {
         .option-box { cursor: pointer; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px; transition: all 0.2s; }
         .option-box:hover { background: #f9fafb; border-color: #d1d5db; }
         .option-box.selected { border-color: #0056D2; background: #eff6ff; }
+        #qNum { color: #0056D2; font-size: 1.2em; font-weight: bold; }
+        #qTotal { font-size: 0.9em; color: #6c757d; }
     </style>
 </head>
 <body>
@@ -131,7 +133,7 @@ foreach ($data as $i => $row) {
             <div class="col-md-9 mb-3">
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-3">
-                        <h5 class="mb-0 fw-bold text-primary">Question <span id="qNum">1</span></h5>
+                        <h5 class="mb-0 fw-bold text-primary">Question <span id="qNum">1</span> <span class="text-muted" id="qTotal"></span></h5>
                         <span class="badge bg-light text-dark border">Marks: <span id="qMarks">1.0</span></span>
                     </div>
                     <div class="card-body p-4" style="min-height: 350px;">
@@ -205,6 +207,7 @@ foreach ($data as $i => $row) {
             if (q.status === 'not_visited') updateState('not_answered', q.selected_idx, false);
             
             document.getElementById('qNum').innerText = currentIdx + 1;
+            document.getElementById('qTotal').innerText = `of ${questions.length}`;
             document.getElementById('qMarks').innerText = q.marks;
             document.getElementById('qText').innerText = q.text;
             

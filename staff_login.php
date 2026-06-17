@@ -3,6 +3,13 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
 if (isLoggedIn()) {
+    // If role_name is missing from session, try to get it from database
+    if (empty($_SESSION['role_name'])) {
+        $stmt = $pdo->prepare("SELECT r.name FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+        $_SESSION['role_name'] = $user['name'] ?? 'admin';
+    }
     redirectDashboard($_SESSION['role_name']);
 }
 

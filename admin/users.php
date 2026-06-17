@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/notification_emails.php';
+require_once __DIR__ . '/../includes/user_deletion_functions.php';
 requireLogin();
 
 if (!hasRole('superadmin') && !hasRole('admin')) {
@@ -74,6 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } catch (Exception $e) {
                     $_SESSION['error_message'] = "Error rejecting student.";
                 }
+            } elseif ($action === 'delete' && hasRole('superadmin')) {
+                try {
+                    $deletion_reason = sanitizeInput($_POST['deletion_reason'] ?? '');
+                    archiveUserBeforeDeletion($user_id, $deletion_reason, $_SESSION['user_id']);
+                    $_SESSION['success_message'] = "User has been permanently deleted and archived.";
+                } catch (Exception $e) {
+                    $_SESSION['error_message'] = "Error deleting user: " . $e->getMessage();
+                    error_log('User Deletion Error: ' . $e->getMessage());
+                }
             }
         } else {
             $_SESSION['error_message'] = "Invalid action or permission denied.";
@@ -82,24 +92,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('/admin/users.php');
 }
 
-// Handle Search
+// Handle Search and Pagination
 $search = sanitizeInput($_GET['search'] ?? '');
-$query = "SELECT u.id, u.full_name, u.email, u.phone, u.status, u.approval_status, r.name as role_name, t.trade_name 
-          FROM users u 
-          JOIN roles r ON u.role_id = r.id 
-          LEFT JOIN trades t ON u.trade_id = t.id";
+$page = max(1, (int)($_GET['page'] ?? 1));
+$per_page = 10;
 
-$params = [];
-if (!empty($search)) {
-    $query .= " WHERE u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?";
-    $likeSearch = "%$search%";
-    $params = [$likeSearch, $likeSearch, $likeSearch];
-}
-$query .= " ORDER BY u.approval_status = 'pending' DESC, u.created_at DESC";
-
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$users = $stmt->fetchAll();
+// Get paginated users
+$pagination = getUsersPaginated($page, $per_page, $search);
+$users = $pagination['records'];
+$total_pages = $pagination['total_pages'];
+$total_records = $pagination['total_records'];
+$current_page = $pagination['current_page'];
 
 // Fetch roles for edit modal
 $roles = $pdo->query("SELECT id, name FROM roles")->fetchAll();
@@ -124,6 +127,13 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 <a href="users.php" class="btn btn-outline-secondary ms-2">Clear</a>
             <?php endif; ?>
         </form>
+        
+        <!-- Results Info -->
+        <div class="mb-3 text-muted small">
+            Showing <?= count($users) > 0 ? (($current_page - 1) * $per_page) + 1 : 0 ?> 
+            to <?= min($current_page * $per_page, $total_records) ?> 
+            of <?= $total_records ?> users
+        </div>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -186,6 +196,12 @@ require_once __DIR__ . '/../includes/sidebar.php';
                                         <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Unblock this user?');">Unblock</button>
                                     <?php endif; ?>
                                 </form>
+                                
+                                <?php if(hasRole('superadmin')): ?>
+                                    <button class="btn btn-sm btn-outline-dark" onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars(addslashes($user['full_name'])) ?>')">
+                                        <i data-lucide="trash-2" style="width:14px; height:14px;" class="me-1"></i>Delete
+                                    </button>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -198,6 +214,60 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 </tbody>
             </table>
         </div>
+        
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous Button -->
+                <?php if ($current_page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1<?= !empty($search) ? '&search=' . urlencode($search) : '' ?>">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $current_page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>">Previous</a>
+                    </li>
+                <?php else: ?>
+                    <li class="page-item disabled"><span class="page-link">First</span></li>
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                <?php endif; ?>
+                
+                <!-- Page Numbers -->
+                <?php
+                $start_page = max(1, $current_page - 2);
+                $end_page = min($total_pages, $current_page + 2);
+                
+                if ($start_page > 1): ?>
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif;
+                
+                for ($i = $start_page; $i <= $end_page; $i++):
+                    $active = ($i === $current_page) ? 'active' : '';
+                ?>
+                    <li class="page-item <?= $active ?>">
+                        <a class="page-link" href="?page=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor;
+                
+                if ($end_page < $total_pages): ?>
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                
+                <!-- Next Button -->
+                <?php if ($current_page < $total_pages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $current_page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $total_pages ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?>">Last</a>
+                    </li>
+                <?php else: ?>
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    <li class="page-item disabled"><span class="page-link">Last</span></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -263,6 +333,27 @@ function rejectStudent(userId, userName) {
         `;
         document.body.appendChild(form);
         form.submit();
+    }
+}
+
+function deleteUser(userId, userName) {
+    const reason = prompt(`⚠️ PERMANENTLY DELETE: ${userName}\n\nEnter reason for deletion:\n\n(This action cannot be undone. The user will be archived.)`);
+    if (reason !== null && reason.trim() !== '') {
+        if (confirm('Are you absolutely sure? This will permanently delete the user account.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '';
+            form.innerHTML = `
+                <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="user_id" value="${userId}">
+                <input type="hidden" name="deletion_reason" value="${reason}">
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    } else if (reason !== null) {
+        alert('Please enter a reason for deletion.');
     }
 }
 </script>
