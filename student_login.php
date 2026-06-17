@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['error_message'] = "Please enter both email and password.";
         } else {
             $stmt = $pdo->prepare("
-                SELECT u.id, u.password, u.full_name, u.status, r.name AS role_name 
+                SELECT u.id, u.password, u.full_name, u.status, u.approval_status, r.name AS role_name 
                 FROM users u 
                 JOIN roles r ON u.role_id = r.id 
                 WHERE u.email = :email
@@ -28,6 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user && password_verify($password, $user['password'])) {
                 if ($user['role_name'] !== 'student') {
                     $_SESSION['error_message'] = "This portal is for students. Please use the Staff Login.";
+                } elseif ($user['approval_status'] === 'pending') {
+                    $_SESSION['error_message'] = "Your account is pending admin approval. Please wait for verification.";
+                } elseif ($user['approval_status'] === 'rejected') {
+                    $_SESSION['error_message'] = "Your account has been rejected. Please contact support.";
                 } elseif ($user['status'] !== 'active') {
                     $_SESSION['error_message'] = "Your account is " . htmlspecialchars($user['status']) . ". Please contact support.";
                 } else {

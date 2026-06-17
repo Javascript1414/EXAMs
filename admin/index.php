@@ -41,9 +41,6 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 <i data-lucide="layout-dashboard" style="width: 32px; height: 32px;"></i>
                 Dashboard
             </h1>
-            <a href="<?= BASE_URL ?>/logout.php" class="btn btn-outline-danger d-flex align-items-center" style="gap: 0.5rem;">
-                <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Logout
-            </a>
         </div>
 
         <!-- Flash Messages -->

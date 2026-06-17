@@ -1,0 +1,153 @@
+/* User Profile and Dropdown Styles */
+.avatar-circle { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%; 
+    background: rgba(255, 255, 255, 0.25); 
+    color: #fff; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.avatar-circle:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 6px 25px rgba(255, 255, 255, 0.3);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 8px 15px;
+    border-radius: 10px;
+    background: rgba(0, 84, 210, 0.05);
+}
+
+.user-profile:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(3px);
+}
+
+.user-name {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.95rem;
+    letter-spacing: -0.3px;
+}
+
+.user-dropdown-trigger {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    z-index: 10;
+}
+
+.user-dropdown-trigger::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.user-dropdown-trigger:hover::after {
+    opacity: 1;
+}
+
+.user-dropdown-trigger:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.user-dropdown-trigger[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.user-dropdown-trigger[aria-expanded="true"] i {
+    transform: rotate(180deg) scale(1.1);
+}
+
+.dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    left: auto !important;
+    min-width: 260px !important;
+    z-index: 9999 !important;
+    visibility: visible !important;
+    background-color: #fff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px !important;
+    margin: 0 !important;
+    backdrop-filter: blur(20px);
+}
+
+.dropdown-menu.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    animation: slideDownElegant 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes slideDownElegant {
+    from {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.dropdown-item {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    border-radius: 10px;
+    margin: 6px 8px;
+    padding: 12px 14px !important;
+    color: #1f2937 !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid transparent;
+}
+
+.dropdown-item:not(.text-danger):hover {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color: #0056D2 !important;
+    border: 1px solid rgba(0, 84, 210, 0.4) !important;
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(0, 84, 210, 0.2);
+    font-weight: 600;
+}
+
+.dropdown-item.text-danger {
+    color: #ef4444 !important;
+}
+
+.dropdown-item.text-danger:hover {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+    color: #dc2626 !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    font-weight: 600;
+}

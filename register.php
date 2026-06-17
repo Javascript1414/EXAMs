@@ -96,9 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Create temporary pending user (not verified yet)
                         $insertStmt = $pdo->prepare("
                             INSERT INTO users 
-                            (role_id, full_name, email, phone, password, trade_id, gender, date_of_birth, address, batch, institute_name, enrollment_no, email_verified, status) 
+                            (role_id, full_name, email, phone, password, trade_id, gender, date_of_birth, address, batch, institute_name, enrollment_no, email_verified, status, approval_status) 
                             VALUES 
-                            (:role_id, :full_name, :email, :phone, :password, :trade_id, :gender, :date_of_birth, :address, :batch, :institute_name, :enrollment_no, FALSE, 'inactive')
+                            (:role_id, :full_name, :email, :phone, :password, :trade_id, :gender, :date_of_birth, :address, :batch, :institute_name, :enrollment_no, FALSE, 'inactive', 'pending')
                         ");
                         
                         $insertSuccess = $insertStmt->execute([

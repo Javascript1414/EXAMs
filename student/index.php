@@ -9,9 +9,6 @@ require_once __DIR__ . '/../includes/sidebar.php';
 <div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-dark mb-0">Welcome back, <?= htmlspecialchars($_SESSION['full_name'] ?? 'Student') ?>!</h3>
-        <a href="<?= BASE_URL ?>/logout.php" class="btn btn-outline-danger btn-sm d-flex align-items-center">
-            <i data-lucide="log-out" class="me-2" style="width: 16px; height: 16px;"></i> Logout
-        </a>
     </div>
     
     <?php displayFlashMessages(); ?>

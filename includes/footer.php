@@ -15,6 +15,23 @@
             if (sidebarCollapse && sidebar) {
                 sidebarCollapse.addEventListener('click', () => sidebar.classList.toggle('active'));
             }
+            
+            // Initialize User Dropdown with Bootstrap
+            const userDropdownElement = document.getElementById('userDropdown');
+            if (userDropdownElement) {
+                // Create new dropdown instance
+                new bootstrap.Dropdown(userDropdownElement);
+                
+                // Reinitialize Lucide icons when dropdown is shown
+                userDropdownElement.addEventListener('shown.bs.dropdown', function() {
+                    setTimeout(() => lucide.createIcons(), 100);
+                });
+                
+                // Also reinitialize when hidden
+                userDropdownElement.addEventListener('hidden.bs.dropdown', function() {
+                    setTimeout(() => lucide.createIcons(), 100);
+                });
+            }
         });
 
         // Notification AJAX Handlers

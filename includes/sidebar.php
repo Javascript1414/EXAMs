@@ -112,11 +112,35 @@ if (isLoggedIn()) {
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center text-dark text-decoration-none">
-                            <div class="avatar-circle me-2">
-                                <?= strtoupper(substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
-                            </div>
-                            <span class="fw-semibold d-none d-sm-inline"><?= htmlspecialchars($_SESSION['full_name'] ?? 'User') ?></span>
+                        <!-- User Profile Dropdown -->
+                        <div class="dropdown" style="position: relative;">
+                            <a href="#" class="d-flex align-items-center text-decoration-none user-dropdown-trigger" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: rgba(255,255,255,0.9); text-decoration: none; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <div class="avatar-circle" style="width: 38px; height: 38px; margin: 0; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                                    <?= strtoupper(substr($_SESSION['full_name'] ?? 'U', 0, 1)) ?>
+                                </div>
+                                <span class="fw-bold d-none d-sm-inline" style="color: #ffffff; font-size: 0.96rem; letter-spacing: -0.4px;"><?= htmlspecialchars($_SESSION['full_name'] ?? 'User') ?></span>
+                                <i data-lucide="chevron-down" style="width: 16px; height: 16px; color: #ffffff; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left: auto;"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li class="px-0 py-0">
+                                    <div style="padding: 16px 14px; margin: 0;">
+                                        <div class="fw-bold" style="color: #78350f; font-size: 0.98rem; letter-spacing: -0.3px;"><?= htmlspecialchars($_SESSION['full_name'] ?? 'User') ?></div>
+                                        <div style="color: #92400e; font-size: 0.82rem; margin-top: 4px; word-break: break-all;"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></div>
+                                    </div>
+                                </li>
+                                <li><a class="dropdown-item" href="<?= BASE_URL ?>/student/profile.php">
+                                    <i data-lucide="user" style="flex-shrink: 0;"></i>
+                                    <span>My Profile</span>
+                                </a></li>
+                                <li><a class="dropdown-item" href="<?= BASE_URL ?>/student/settings.php">
+                                    <i data-lucide="settings" style="flex-shrink: 0;"></i>
+                                    <span>Settings</span>
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>/logout_new.php">
+                                    <i data-lucide="log-out" style="flex-shrink: 0;"></i>
+                                    <span>Logout</span>
+                                </a></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
