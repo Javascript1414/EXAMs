@@ -93,6 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Hash password
                         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                         
+                        // Store plain password temporarily in session for email (will be used in verify_otp.php)
+                        $_SESSION['temp_registration_password'] = $password;
+                        
                         // Create temporary pending user (not verified yet)
                         $insertStmt = $pdo->prepare("
                             INSERT INTO users 

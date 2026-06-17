@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/notification_emails.php';
 requireLogin();
 
 if (!hasRole('superadmin') && !hasRole('admin')) {
@@ -30,14 +31,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } elseif ($action === 'approve') {
                 try {
+                    // Get user details for email
+                    $userDetailStmt = $pdo->prepare("SELECT full_name, email FROM users WHERE id = ?");
+                    $userDetailStmt->execute([$user_id]);
+                    $userDetail = $userDetailStmt->fetch();
+                    
+                    // Update approval status
                     $pdo->prepare("UPDATE users SET approval_status = 'approved', approved_by = ?, approved_at = NOW() WHERE id = ?")->execute([$_SESSION['user_id'], $user_id]);
+                    
                     // Log approval
                     $pdo->prepare("INSERT INTO admin_approvals_log (user_id, admin_id, action, ip_address, user_agent) VALUES (?, ?, 'approved', ?, ?)")->execute([
                         $user_id, $_SESSION['user_id'], $_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_USER_AGENT']
                     ]);
-                    $_SESSION['success_message'] = "Student has been approved.";
+                    
+                    // Send approval email notification
+                    if ($userDetail) {
+                        $email_sent = sendApprovalNotificationEmail(
+                            $userDetail['email'],
+                            $userDetail['full_name'],
+                            $user_id
+                        );
+                        
+                        error_log('Approval Email Status: ' . ($email_sent ? 'SENT' : 'FAILED') . ' for User ID: ' . $user_id);
+                    }
+                    
+                    $_SESSION['success_message'] = "Student has been approved. Notification email sent.";
                 } catch (Exception $e) {
-                    $_SESSION['error_message'] = "Error approving student.";
+                    $_SESSION['error_message'] = "Error approving student: " . $e->getMessage();
+                    error_log('Student Approval Error: ' . $e->getMessage());
                 }
             } elseif ($action === 'reject') {
                 try {

@@ -2,6 +2,8 @@
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/otp_helper.php';
+require_once __DIR__ . '/includes/email_helper.php';
+require_once __DIR__ . '/includes/notification_emails.php';
 
 $errors = [];
 $success_message = '';
@@ -24,6 +26,62 @@ $user = $userStmt->fetch();
 
 if (!$user) {
     $errors[] = "User not found.";
+}
+
+// Handle Resend OTP request
+if (isset($_GET['resend']) && $_GET['resend'] == 1) {
+    if ($user) {
+        // Check rate limit - only allow resend if last OTP is older than 2 minutes
+        $lastOTPStmt = $pdo->prepare("
+            SELECT created_at FROM otp_verifications 
+            WHERE user_id = ? AND purpose = ? 
+            ORDER BY created_at DESC LIMIT 1
+        ");
+        $lastOTPStmt->execute([$user_id, $purpose]);
+        $lastOTP = $lastOTPStmt->fetch();
+        
+        $can_resend = true;
+        $wait_time = 0;
+        
+        if ($lastOTP) {
+            $last_created = strtotime($lastOTP['created_at']);
+            $now = time();
+            $time_diff = $now - $last_created;
+            $rate_limit = 120; // 2 minutes
+            
+            if ($time_diff < $rate_limit) {
+                $can_resend = false;
+                $wait_time = $rate_limit - $time_diff;
+            }
+        }
+        
+        if (!$can_resend) {
+            $errors[] = "Please wait " . $wait_time . " seconds before resending OTP.";
+        } else {
+            // Delete old OTPs
+            $deleteStmt = $pdo->prepare("DELETE FROM otp_verifications WHERE user_id = ? AND purpose = ?");
+            $deleteStmt->execute([$user_id, $purpose]);
+            
+            // Create new OTP
+            $new_otp = createOTP($pdo, $user_id, $purpose, 'both', 10);
+            
+            if ($new_otp) {
+                // Send OTP via email
+                $email_sent = sendOTPEmail($user['email'], $new_otp, $user['full_name']);
+                
+                if ($email_sent) {
+                    $success_message = "✅ New OTP has been sent to your email! Check your inbox.";
+                    error_log("OTP Resent to User ID: {$user_id}, Email: {$user['email']}");
+                } else {
+                    $errors[] = "OTP created but failed to send. Please try again.";
+                    error_log("OTP Resend Email Failed for User ID: {$user_id}");
+                }
+            } else {
+                $errors[] = "Failed to generate new OTP. Please try again.";
+                error_log("OTP Generation Failed for User ID: {$user_id}");
+            }
+        }
+    }
 }
 
 // Check for pending OTP
@@ -51,7 +109,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $updateStmt = $pdo->prepare("UPDATE users SET email_verified = TRUE, status = 'active' WHERE id = ?");
                     $updateStmt->execute([$user_id]);
                     
-                    $_SESSION['success_message'] = "Email verified successfully! You can now log in.";
+                    // Send registration notification email with credentials
+                    // Get the password from session (it was hashed before inserting to DB)
+                    $password_display = $_SESSION['temp_registration_password'] ?? 'Your temporary password';
+                    
+                    // Send email
+                    $email_sent = sendRegistrationNotificationEmail(
+                        $user['email'],
+                        $user['full_name'],
+                        $user_id,
+                        $password_display
+                    );
+                    
+                    // Log for debugging
+                    error_log('Registration Email Status: ' . ($email_sent ? 'SENT' : 'FAILED') . ' for User ID: ' . $user_id);
+                    
+                    $_SESSION['success_message'] = "Email verified successfully! You can now log in. Registration details have been sent to your email.";
                     redirect('/login.php');
                 } else if ($purpose === 'password_reset') {
                     // Redirect to reset password page
@@ -94,7 +167,7 @@ $purpose_label = ($purpose === 'password_reset') ? 'Password Reset' : 'Email Ver
         .otp-code-input { font-size: 24px; letter-spacing: 10px; font-weight: bold; font-family: 'Courier New', monospace; text-align: center; }
         .otp-info { background: #f0f4ff; border-left: 4px solid #667eea; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 13px; color: #555; }
         .otp-resend { text-align: center; margin-top: 20px; }
-        .otp-resend a { color: #667eea; text-decoration: none; font-weight: 600; }
+        .otp-resend a { color: #667eea; text-decoration: none; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
         .otp-resend a:hover { text-decoration: underline; }
         .countdown { color: #dc3545; font-weight: 600; }
         .btn-verify { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border-radius: 8px; margin-top: 20px; }
@@ -151,10 +224,12 @@ $purpose_label = ($purpose === 'password_reset') ? 'Password Reset' : 'Email Ver
                 <p style="margin: 20px 0; color: #666; font-size: 13px;">
                     Didn't receive the OTP?
                 </p>
-                <a href="?purpose=<?= htmlspecialchars($purpose) ?>&user_id=<?= $user_id ?>&resend=1">
+                <a href="?purpose=<?= htmlspecialchars($purpose) ?>&user_id=<?= $user_id ?>&resend=1" id="resend-btn" onclick="return handleResendClick(event)">
                     <i data-lucide="refresh-cw" style="width: 14px; display: inline; margin-right: 5px;"></i>
-                    Resend OTP
+                    <span id="resend-text">Resend OTP</span>
+                    <span id="resend-timer" style="display: none;"> in <span id="timer-count">60</span>s</span>
                 </a>
+                <div id="resend-message" style="margin-top: 10px; font-size: 12px;"></div>
             </div>
         </div>
     </div>
@@ -165,6 +240,48 @@ $purpose_label = ($purpose === 'password_reset') ? 'Password Reset' : 'Email Ver
         document.getElementById('otp_code').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
+        
+        // Resend OTP timer and state management
+        let resendDisabled = false;
+        let resendCountdown = 0;
+        
+        function handleResendClick(e) {
+            if (resendDisabled) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Disable button for 60 seconds
+            resendDisabled = true;
+            resendCountdown = 60;
+            const resendBtn = document.getElementById('resend-btn');
+            const resendText = document.getElementById('resend-text');
+            const resendTimer = document.getElementById('resend-timer');
+            const timerCount = document.getElementById('timer-count');
+            
+            resendBtn.style.pointerEvents = 'none';
+            resendBtn.style.opacity = '0.5';
+            resendText.style.display = 'none';
+            resendTimer.style.display = 'inline';
+            
+            // Update countdown
+            const countdownInterval = setInterval(function() {
+                resendCountdown--;
+                timerCount.textContent = resendCountdown;
+                
+                if (resendCountdown <= 0) {
+                    clearInterval(countdownInterval);
+                    resendDisabled = false;
+                    resendBtn.style.pointerEvents = 'auto';
+                    resendBtn.style.opacity = '1';
+                    resendText.style.display = 'inline';
+                    resendTimer.style.display = 'none';
+                }
+            }, 1000);
+            
+            // Allow the link to proceed
+            return true;
+        }
         
         // OTP timer
         let timeLeft = 600; // 10 minutes

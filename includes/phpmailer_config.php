@@ -4,6 +4,9 @@
  * Setup SMTP configuration for sending emails
  */
 
+// Require Composer autoloader for PHPMailer
+require_once __DIR__ . '/../vendor/autoload.php';
+
 // Import PHPMailer classes
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
