@@ -139,6 +139,6 @@ echo "</ul>";
 echo "<p>If <strong>mail() = FALSE</strong>:</p>";
 echo "<ul>";
 echo "<li>✅ Use PHPMailer with Gmail SMTP instead</li>";
-<li>Go to: <a href='use_phpmailer_for_registration.php'>use_phpmailer_for_registration.php</a></li>";
+echo "<li>Go to: <a href='use_phpmailer_for_registration.php'>use_phpmailer_for_registration.php</a></li>";
 echo "</ul>";
 ?>

@@ -1,0 +1,85 @@
+
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center; }
+        .header h2 { margin: 0; font-size: 28px; }
+        .content { padding: 30px 20px; }
+        .details { background: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #667eea; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .detail-label { font-weight: bold; color: #667eea; }
+        .buttons { text-align: center; margin: 30px 0; }
+        .btn { display: inline-block; padding: 12px 25px; margin: 8px; text-decoration: none; border-radius: 5px; font-weight: bold; color: white; }
+        .btn-primary { background: #667eea; }
+        .btn-success { background: #28a745; }
+        .btn-secondary { background: #6c757d; }
+        .footer { text-align: center; color: #999; font-size: 12px; padding: 20px; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h2>🎉 बधाई हो!</h2>
+            <p style='margin: 10px 0 0 0; font-size: 16px;'>आपका Certificate तैयार है</p>
+        </div>
+        
+        <div class='content'>
+            <p>प्रिय <strong>Test Student</strong>,</p>
+            <p>आपने परीक्षा सफलतापूर्वक पास कर ली है! आपका Certificate तैयार है।</p>
+            
+            <div class='details'>
+                <h3 style='color: #667eea; margin-top: 0;'>📋 Certificate विवरण</h3>
+                <div class='detail-row'>
+                    <span class='detail-label'>Certificate ID:</span>
+                    <span><strong>CITS/26-27/Y/1414/A1</strong></span>
+                </div>
+                <div class='detail-row'>
+                    <span class='detail-label'>Exam:</span>
+                    <span><strong>Dummy Exam - 2026-06-18 10:47</strong></span>
+                </div>
+                <div class='detail-row'>
+                    <span class='detail-label'>अंक (Marks):</span>
+                    <span><strong>32.00/32</strong></span>
+                </div>
+                <div class='detail-row'>
+                    <span class='detail-label'>प्रतिशत (Percentage):</span>
+                    <span><strong>100.00%</strong></span>
+                </div>
+                <div class='detail-row'>
+                    <span class='detail-label'>ग्रेड (Grade):</span>
+                    <span><strong>A+</strong></span>
+                </div>
+                <div class='detail-row'>
+                    <span class='detail-label'>Verification Code:</span>
+                    <span><strong style='font-family: monospace;'>10C37FCA946D</strong></span>
+                </div>
+            </div>
+            
+            <div class='buttons'>
+                <a href='http://localhost/EXAMs/student/certificate_view.php?id=19' class='btn btn-primary'>👁️ Certificate देखें</a>
+                <a href='http://localhost/EXAMs/student/certificate_view.php?id=19&download=1' class='btn btn-success'>⬇️ PDF Download करें</a>
+                <a href='http://localhost/EXAMs/verify.php?code=10C37FCA946D' class='btn btn-secondary'>✓ Verify करें</a>
+            </div>
+            
+            <div class='details'>
+                <h4 style='color: #667eea; margin-top: 0;'>📌 अगले कदम (Next Steps)</h4>
+                <ul>
+                    <li>Certificate को online देखें</li>
+                    <li>PDF download करके रखें</li>
+                    <li>अपने achievement को share करें</li>
+                    <li>Certificate को verify करें</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class='footer'>
+            <p>© 2026 EXAMs Learning System. सर्वाधिकार सुरक्षित।<br>
+            National Skill Training Institute, Kolkata<br>
+            <strong>Certificate ID:</strong> CITS/26-27/Y/1414/A1</p>
+        </div>
+    </div>
+</body>
+</html>

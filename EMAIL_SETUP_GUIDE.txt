@@ -1,0 +1,59 @@
+<?php
+/**
+ * COMPLETE EMAIL SENDING SOLUTION
+ * यह 3 तरीकों में से pick करके use करें
+ */
+
+echo "📧 CERTIFICATE EMAIL SENDING\n";
+echo "=" . str_repeat("=", 70) . "\n";
+echo "आपके पास 3 options हैं:\n\n";
+
+// OPTION 1: GMAIL के साथ
+echo "✅ OPTION 1: Gmail के साथ Email भेजें\n";
+echo str_repeat("-", 70) . "\n";
+echo "Steps:\n";
+echo "1. Gmail खोलें: https://myaccount.google.com/\n";
+echo "2. \"Security\" section में जाएں\n";
+echo "3. 'App Passwords' खोलें (2FA enable होना चाहिए)\n";
+echo "4. 'Mail' और 'Windows Computer' select करके App Password generate करें\n";
+echo "5. 16-character password copy करें\n";
+echo "6. नीचे दिया गया config.php में paste करें\n\n";
+
+echo "config.php में add करें:\n";
+echo "define('SMTP_HOST', 'smtp.gmail.com');\n";
+echo "define('SMTP_PORT', 587);\n";
+echo "define('SMTP_USER', 'soumyajitsantra699@gmail.com');\n";
+echo "define('SMTP_PASS', 'your-16-char-app-password');\n\n";
+
+// OPTION 2: MAILTRAP के साथ
+echo "✅ OPTION 2: Mailtrap के साथ (Testing के लिए)\n";
+echo str_repeat("-", 70) . "\n";
+echo "Steps:\n";
+echo "1. Mailtrap.io खोलें\n";
+echo "2. Sign Up करें (FREE)\n";
+echo "3. Inbox → SMTP Settings copy करें\n";
+echo "4. Host, Port, Username, Password copy करें\n\n";
+
+echo "config.php में add करें:\n";
+echo "define('SMTP_HOST', 'smtp.mailtrap.io');\n";
+echo "define('SMTP_PORT', 587);\n";
+echo "define('SMTP_USER', 'your_mailtrap_username');\n";
+echo "define('SMTP_PASS', 'your_mailtrap_password');\n\n";
+
+// OPTION 3: SENDGRID के साथ
+echo "✅ OPTION 3: SendGrid (Production के लिए)\n";
+echo str_repeat("-", 70) . "\n";
+echo "Steps:\n";
+echo "1. SendGrid.com खोलें\n";
+echo "2. Sign Up करें (100 free emails/day)\n";
+echo "3. API Keys generate करें\n";
+echo "4. Key copy करें\n\n";
+
+echo "config.php में add करें:\n";
+echo "define('SENDGRID_API_KEY', 'your-sendgrid-api-key');\n\n";
+
+echo "=" . str_repeat("=", 70) . "\n";
+echo "🎯 QUICK SETUP: अभी के लिए MAILTRAP use करें\n";
+echo "=" . str_repeat("=", 70) . "\n\n";
+
+?>

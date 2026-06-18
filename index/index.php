@@ -33,9 +33,9 @@ include __DIR__ . '/sections/footer.php';
 
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../js/script.js"></script>
-<script src="scripts/carousel.js"></script>
-<script src="scripts/index-animations.js"></script>
+<script src="../js/script.js?v=2"></script>
+<script src="scripts/carousel.js?v=2"></script>
+<script src="scripts/index-animations.js?v=3"></script>
 
 </body>
 </html>

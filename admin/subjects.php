@@ -59,26 +59,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $search = sanitizeInput($_GET['search'] ?? '');
 $filter_trade_id = (int)($_GET['trade_id'] ?? 0);
 
+// Pagination
+$page = max(1, (int)($_GET['page'] ?? 1));
+$subjects_per_page = 10;
+
+$where_clause = "WHERE 1=1";
+$count_params = [];
+$query_params = [];
+
+if (!empty($search)) {
+    $where_clause .= " AND (s.subject_name LIKE ? OR s.description LIKE ?)";
+    $count_params[] = "%$search%";
+    $count_params[] = "%$search%";
+    $query_params[] = "%$search%";
+    $query_params[] = "%$search%";
+}
+if ($filter_trade_id > 0) {
+    $where_clause .= " AND s.trade_id = ?";
+    $count_params[] = $filter_trade_id;
+    $query_params[] = $filter_trade_id;
+}
+
+// Count total subjects
+$count_query = "SELECT COUNT(*) as total FROM subjects s JOIN trades t ON s.trade_id = t.id " . $where_clause;
+$count_stmt = $pdo->prepare($count_query);
+$count_stmt->execute($count_params);
+$total_subjects = $count_stmt->fetch()['total'];
+$total_pages = ceil($total_subjects / $subjects_per_page);
+
+// Ensure page is within bounds
+if ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
+$offset = ($page - 1) * $subjects_per_page;
+
 $query = "SELECT s.*, t.trade_name 
           FROM subjects s 
           JOIN trades t ON s.trade_id = t.id 
-          WHERE 1=1";
-$params = [];
-
-if (!empty($search)) {
-    $query .= " AND (s.subject_name LIKE ? OR s.description LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
-}
-if ($filter_trade_id > 0) {
-    $query .= " AND s.trade_id = ?";
-    $params[] = $filter_trade_id;
-}
-
-$query .= " ORDER BY s.subject_name ASC";
+          " . $where_clause . "
+          ORDER BY s.subject_name ASC
+          LIMIT ? OFFSET ?";
+$query_params[] = $subjects_per_page;
+$query_params[] = $offset;
 
 $stmt = $pdo->prepare($query);
-$stmt->execute($params);
+$stmt->execute($query_params);
 $subjects = $stmt->fetchAll();
 
 $trades = $pdo->query("SELECT id, trade_name FROM trades ORDER BY trade_name ASC")->fetchAll();
@@ -119,6 +145,11 @@ require_once __DIR__ . '/../includes/sidebar.php';
             </div>
         </form>
 
+        <!-- Results Info -->
+        <div class="mb-3 text-muted small">
+            Showing <?= $total_subjects > 0 ? (($page - 1) * $subjects_per_page) + 1 : 0 ?> to <?= min($page * $subjects_per_page, $total_subjects) ?> of <?= $total_subjects ?> subjects
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -154,6 +185,58 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                <?php 
+                // Previous button
+                if ($page > 1): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="subjects.php?page=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $filter_trade_id > 0 ? '&trade_id=' . $filter_trade_id : '' ?>">Previous</a>
+                </li>
+                <?php endif; ?>
+                
+                <?php 
+                // Page numbers with smart range
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+                
+                if ($start_page > 1): 
+                ?>
+                <li class="page-item"><a class="page-link" href="subjects.php?page=1<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $filter_trade_id > 0 ? '&trade_id=' . $filter_trade_id : '' ?>">1</a></li>
+                <?php if ($start_page > 2): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; endif; ?>
+                
+                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                    <a class="page-link" href="subjects.php?page=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $filter_trade_id > 0 ? '&trade_id=' . $filter_trade_id : '' ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+                
+                <?php 
+                if ($end_page < $total_pages): 
+                    if ($end_page < $total_pages - 1): 
+                ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <li class="page-item"><a class="page-link" href="subjects.php?page=<?= $total_pages ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $filter_trade_id > 0 ? '&trade_id=' . $filter_trade_id : '' ?>"><?= $total_pages ?></a></li>
+                <?php endif; ?>
+                
+                <?php 
+                // Next button
+                if ($page < $total_pages): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="subjects.php?page=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $filter_trade_id > 0 ? '&trade_id=' . $filter_trade_id : '' ?>">Next</a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+        <?php endif; ?>
     </div>
 </div>
 

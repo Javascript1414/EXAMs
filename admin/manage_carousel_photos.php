@@ -65,19 +65,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['photo'])) {
 }
 
 // Get all carousel photos
-$carouselPhotos = [];
+$allCarouselPhotos = [];
 if (is_dir($imageDir)) {
     $files = scandir($imageDir);
     foreach ($files as $file) {
         if ($file !== '.' && $file !== '..') {
             $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
             if (in_array($extension, $allowedExtensions)) {
-                $carouselPhotos[] = $file;
+                $allCarouselPhotos[] = $file;
             }
         }
     }
-    sort($carouselPhotos);
+    sort($allCarouselPhotos);
 }
+
+// Pagination
+$page = max(1, (int)($_GET['page'] ?? 1));
+$photos_per_page = 9;   // 3 rows x 3 columns
+$total_photos = count($allCarouselPhotos);
+$total_pages = ceil($total_photos / $photos_per_page);
+
+// Ensure page is within bounds
+if ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
+$offset = ($page - 1) * $photos_per_page;
+$carouselPhotos = array_slice($allCarouselPhotos, $offset, $photos_per_page);
 
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
@@ -179,7 +193,7 @@ require_once __DIR__ . '/../includes/sidebar.php';
     
     .photos-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 20px;
         margin-top: 20px;
     }
@@ -297,7 +311,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
 
 <!-- Photos Gallery -->
 <div class="upload-card">
-    <h4 style="margin-bottom: 20px; color: #333;">📷 Current Carousel Photos (<?= count($carouselPhotos) ?>)</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 style="color: #333; margin-bottom: 0;">📷 Current Carousel Photos (<?= $total_photos ?>)</h4>
+        <?php if ($total_photos > 0): ?>
+            <div class="text-muted small">
+                Showing <?= $total_photos > 0 ? (($page - 1) * $photos_per_page) + 1 : 0 ?> to <?= min($page * $photos_per_page, $total_photos) ?> of <?= $total_photos ?>
+            </div>
+        <?php endif; ?>
+    </div>
     
     <?php if (count($carouselPhotos) > 0): ?>
         <div class="photos-grid">
@@ -321,6 +342,56 @@ require_once __DIR__ . '/../includes/sidebar.php';
             <p>No photos uploaded yet. Upload your first photo to get started!</p>
         </div>
     <?php endif; ?>
+    
+    <!-- Pagination -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            <?php 
+            // Previous button
+            if ($page > 1): 
+            ?>
+            <li class="page-item">
+                <a class="page-link" href="manage_carousel_photos.php?page=<?= $page - 1 ?>">Previous</a>
+            </li>
+            <?php endif; ?>
+            
+            <?php 
+            // Page numbers with smart range
+            $start_page = max(1, $page - 2);
+            $end_page = min($total_pages, $page + 2);
+            
+            if ($start_page > 1): 
+            ?>
+            <li class="page-item"><a class="page-link" href="manage_carousel_photos.php?page=1">1</a></li>
+            <?php if ($start_page > 2): ?>
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            <?php endif; endif; ?>
+            
+            <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+            <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                <a class="page-link" href="manage_carousel_photos.php?page=<?= $i ?>"><?= $i ?></a>
+            </li>
+            <?php endfor; ?>
+            
+            <?php 
+            if ($end_page < $total_pages): 
+                if ($end_page < $total_pages - 1): 
+            ?>
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            <?php endif; ?>
+            <li class="page-item"><a class="page-link" href="manage_carousel_photos.php?page=<?= $total_pages ?>"><?= $total_pages ?></a></li>
+            <?php endif; ?>
+            
+            <?php 
+            // Next button
+            if ($page < $total_pages): 
+            ?>
+            <li class="page-item">
+                <a class="page-link" href="manage_carousel_photos.php?page=<?= $page + 1 ?>">Next</a>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
 </div>
 
 <script>

@@ -27,8 +27,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($action === 'edit_role') {
                 $role_id = (int)($_POST['role_id'] ?? 0);
                 if ($role_id > 0) {
-                    $pdo->prepare("UPDATE users SET role_id = ? WHERE id = ?")->execute([$role_id, $user_id]);
-                    $_SESSION['success_message'] = "User role updated.";
+                    try {
+                        // Get the new role name to check if it's teacher
+                        $roleStmt = $pdo->prepare("SELECT name FROM roles WHERE id = ?");
+                        $roleStmt->execute([$role_id]);
+                        $roleData = $roleStmt->fetch();
+                        
+                        // Get user details before updating
+                        $userStmt = $pdo->prepare("SELECT full_name, email, role_id FROM users WHERE id = ?");
+                        $userStmt->execute([$user_id]);
+                        $userData = $userStmt->fetch();
+                        
+                        // Update the role
+                        $pdo->prepare("UPDATE users SET role_id = ? WHERE id = ?")->execute([$role_id, $user_id]);
+                        $_SESSION['success_message'] = "User role updated.";
+                        
+                        // If promoted to teacher, send notification email
+                        if ($roleData && $roleData['name'] === 'teacher' && $userData) {
+                            $email_sent = sendTeacherPromotionNotificationEmail(
+                                $userData['email'],
+                                $userData['full_name'],
+                                $user_id
+                            );
+                            
+                            if ($email_sent) {
+                                $_SESSION['success_message'] .= " Teacher promotion email sent successfully.";
+                            } else {
+                                error_log('Failed to send teacher promotion email for User ID: ' . $user_id);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        $_SESSION['error_message'] = "Error updating user role: " . $e->getMessage();
+                        error_log('Role Update Error: ' . $e->getMessage());
+                    }
                 }
             } elseif ($action === 'approve') {
                 try {

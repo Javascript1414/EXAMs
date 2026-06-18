@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || !empty($code)) {
             FROM certificates c 
             JOIN users u ON c.student_id = u.id 
             JOIN exams e ON c.exam_id = e.id 
-            JOIN trades t ON c.trade_id = t.id 
+            JOIN trades t ON e.trade_id = t.id 
             WHERE c.verification_code = ? OR c.certificate_id = ?
         ");
         $stmt->execute([$searchCode, $searchCode]);

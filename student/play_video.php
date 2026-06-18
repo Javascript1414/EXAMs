@@ -47,9 +47,12 @@ try {
         die('Video not found');
     }
     
-    // Update views count
-    $updateStmt = $pdo->prepare("UPDATE videos SET views = views + 1 WHERE id = ?");
-    $updateStmt->execute([$video_id]);
+    // Atomic view count update (prevents race condition)
+    // Use atomic UPDATE ... SET to ensure no lost increments
+    $updateStmt = $pdo->prepare("UPDATE videos SET views = GREATEST(views, views + 1) WHERE id = ?");
+    if (!$updateStmt->execute([$video_id])) {
+        error_log("Warning: Could not increment view count for video {$video_id}");
+    }
     
 } catch (PDOException $e) {
     die('Error loading video: ' . htmlspecialchars($e->getMessage()));

@@ -1,0 +1,87 @@
+
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body { font-family: Arial, sans-serif; color: #333; background: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; background: white; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px; text-align: center; }
+            .header h2 { margin: 0; font-size: 28px; }
+            .content { padding: 30px 20px; }
+            .details { background: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #667eea; }
+            .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+            .detail-row:last-child { border-bottom: none; }
+            .detail-label { font-weight: bold; color: #667eea; }
+            .buttons { text-align: center; margin: 30px 0; }
+            .btn { display: inline-block; padding: 12px 25px; margin: 8px; text-decoration: none; border-radius: 5px; font-weight: bold; color: white; }
+            .btn-primary { background: #667eea; }
+            .btn-success { background: #28a745; }
+            .btn-secondary { background: #6c757d; }
+            .footer { text-align: center; color: #999; font-size: 12px; padding: 20px 0; border-top: 1px solid #eee; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h2>🎉 Congratulations!</h2>
+                <p style='margin: 10px 0 0 0; font-size: 16px;'>Your Certificate is Ready</p>
+            </div>
+            
+            <div class='content'>
+                <p>Dear <strong>Test Student</strong>,</p>
+                <p>You have successfully completed the exam and earned your certificate! Your hard work and dedication have paid off.</p>
+                
+                <div class='details'>
+                    <h3 style='color: #667eea; margin-top: 0;'>📋 Certificate Details</h3>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Certificate ID:</span>
+                        <span><strong>CITS/26-27/Y/1414/A1</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Exam:</span>
+                        <span><strong>Dummy Exam - 2026-06-18 10:47</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Marks Obtained:</span>
+                        <span><strong>32.00/32</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Percentage:</span>
+                        <span><strong>100.00%</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Grade:</span>
+                        <span><strong>A+</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Verification Code:</span>
+                        <span><strong style='font-family: monospace;'>10C37FCA946D</strong></span>
+                    </div>
+                </div>
+                
+                <div class='buttons'>
+                    <a href='http://localhost/EXAMs/student/certificate_view.php?id=19' class='btn btn-primary'>👁️ View Certificate</a>
+                    <a href='http://localhost/EXAMs/student/certificate_view.php?id=19&download=1' class='btn btn-success'>⬇️ Download PDF</a>
+                    <a href='http://localhost/EXAMs/verify.php?code=10C37FCA946D' class='btn btn-secondary'>✓ Verify Certificate</a>
+                </div>
+                
+                <div class='details'>
+                    <h4 style='color: #667eea; margin-top: 0;'>📌 What's Next?</h4>
+                    <ul>
+                        <li>View your certificate online anytime</li>
+                        <li>Download and save the PDF</li>
+                        <li>Share your achievement with others</li>
+                        <li>Verify certificate authenticity using the code</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class='footer'>
+                <p>© 2026 EXAMs Learning System. All rights reserved.<br>
+                National Skill Training Institute, Kolkata<br>
+                <strong>Certificate ID:</strong> CITS/26-27/Y/1414/A1</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    

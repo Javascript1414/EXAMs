@@ -34,34 +34,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $search = sanitizeInput($_GET['search'] ?? '');
 $trade_id = (int)($_GET['trade_id'] ?? 0);
 $subject_id = (int)($_GET['subject_id'] ?? 0);
+$teacher_id = (int)($_GET['teacher_id'] ?? 0);
 
-$query = "SELECT e.*, t.trade_name, s.subject_name, (SELECT COUNT(*) FROM exam_questions eq WHERE eq.exam_id = e.id) as question_count 
+// Pagination
+$page = max(1, (int)($_GET['page'] ?? 1));
+$exams_per_page = 10;
+
+$where_clause = "WHERE 1=1";
+$count_params = [];
+$query_params = [];
+
+if (!empty($search)) {
+    $where_clause .= " AND e.exam_name LIKE ?";
+    $count_params[] = "%$search%";
+    $query_params[] = "%$search%";
+}
+if ($trade_id > 0) {
+    $where_clause .= " AND e.trade_id = ?";
+    $count_params[] = $trade_id;
+    $query_params[] = $trade_id;
+}
+if ($subject_id > 0) {
+    $where_clause .= " AND e.subject_id = ?";
+    $count_params[] = $subject_id;
+    $query_params[] = $subject_id;
+}
+if ($teacher_id > 0) {
+    $where_clause .= " AND e.created_by = ?";
+    $count_params[] = $teacher_id;
+    $query_params[] = $teacher_id;
+}
+
+// Count total exams
+$count_query = "SELECT COUNT(*) as total FROM exams e 
+                JOIN trades t ON e.trade_id = t.id 
+                JOIN subjects s ON e.subject_id = s.id 
+                JOIN users u ON e.created_by = u.id " . $where_clause;
+$count_stmt = $pdo->prepare($count_query);
+$count_stmt->execute($count_params);
+$total_exams = $count_stmt->fetch()['total'];
+$total_pages = ceil($total_exams / $exams_per_page);
+
+// Ensure page is within bounds
+if ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
+$offset = ($page - 1) * $exams_per_page;
+
+$query = "SELECT e.*, t.trade_name, s.subject_name, u.full_name as teacher_name, u.email as teacher_email,
+          (SELECT COUNT(*) FROM exam_questions eq WHERE eq.exam_id = e.id) as question_count 
           FROM exams e 
           JOIN trades t ON e.trade_id = t.id 
           JOIN subjects s ON e.subject_id = s.id 
-          WHERE 1=1";
-$params = [];
+          JOIN users u ON e.created_by = u.id " . $where_clause . "
+          ORDER BY e.created_at DESC
+          LIMIT ? OFFSET ?";
+$query_params[] = $exams_per_page;
+$query_params[] = $offset;
 
-if (!empty($search)) {
-    $query .= " AND e.exam_name LIKE ?";
-    $params[] = "%$search%";
-}
-if ($trade_id > 0) {
-    $query .= " AND e.trade_id = ?";
-    $params[] = $trade_id;
-}
-if ($subject_id > 0) {
-    $query .= " AND e.subject_id = ?";
-    $params[] = $subject_id;
-}
-
-$query .= " ORDER BY e.created_at DESC";
 $stmt = $pdo->prepare($query);
-$stmt->execute($params);
+$stmt->execute($query_params);
 $exams = $stmt->fetchAll();
 
 $trades = $pdo->query("SELECT id, trade_name FROM trades ORDER BY trade_name")->fetchAll();
 $subjects = $pdo->query("SELECT id, subject_name FROM subjects ORDER BY subject_name")->fetchAll();
+$teachers = $pdo->query("SELECT u.id, u.full_name FROM users u WHERE u.role_id = (SELECT id FROM roles WHERE name = 'teacher') ORDER BY u.full_name")->fetchAll();
 
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
@@ -79,25 +117,32 @@ require_once __DIR__ . '/../includes/sidebar.php';
     
     <div class="card p-4 mb-4">
         <form method="GET" action="" class="row g-3 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label text-muted small mb-1">Search Exam Name</label>
                 <input type="text" name="search" class="form-control" placeholder="Search text..." value="<?= htmlspecialchars($search) ?>">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label text-muted small mb-1">Trade</label>
                 <select name="trade_id" class="form-select">
                     <option value="">All Trades</option>
                     <?php foreach($trades as $t): ?><option value="<?= $t['id'] ?>" <?= $trade_id === $t['id'] ? 'selected' : '' ?>><?= htmlspecialchars($t['trade_name']) ?></option><?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label text-muted small mb-1">Subject</label>
                 <select name="subject_id" class="form-select">
                     <option value="">All Subjects</option>
                     <?php foreach($subjects as $s): ?><option value="<?= $s['id'] ?>" <?= $subject_id === $s['id'] ? 'selected' : '' ?>><?= htmlspecialchars($s['subject_name']) ?></option><?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-2 d-flex">
+            <div class="col-md-2">
+                <label class="form-label text-muted small mb-1">Teacher</label>
+                <select name="teacher_id" class="form-select">
+                    <option value="">All Teachers</option>
+                    <?php foreach($teachers as $teacher): ?><option value="<?= $teacher['id'] ?>" <?= $teacher_id === $teacher['id'] ? 'selected' : '' ?>><?= htmlspecialchars($teacher['full_name']) ?></option><?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex">
                 <button type="submit" class="btn btn-primary w-100 me-2"><i data-lucide="filter" style="width:16px;"></i> Filter</button>
                 <a href="exams.php" class="btn btn-outline-secondary w-100">Clear</a>
             </div>
@@ -105,6 +150,11 @@ require_once __DIR__ . '/../includes/sidebar.php';
     </div>
 
     <div class="card p-4">
+        <!-- Results Info -->
+        <div class="mb-3 text-muted small">
+            Showing <?= $total_exams > 0 ? (($page - 1) * $exams_per_page) + 1 : 0 ?> to <?= min($page * $exams_per_page, $total_exams) ?> of <?= $total_exams ?> exams
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -122,6 +172,11 @@ require_once __DIR__ . '/../includes/sidebar.php';
                         <td>
                             <div class="fw-bold text-dark"><?= htmlspecialchars($e['exam_name']) ?> <span class="badge bg-secondary ms-1"><?= htmlspecialchars($e['exam_type']) ?></span></div>
                             <div class="small text-muted"><?= htmlspecialchars($e['subject_name']) ?> &bull; <?= htmlspecialchars($e['trade_name']) ?></div>
+                            <div class="small text-muted mt-2" style="background:#f0f0f0; padding:5px; border-radius:4px;">
+                                <i style="width: 12px; height: 12px;">👨‍🏫</i> 
+                                <strong><?= htmlspecialchars($e['teacher_name']) ?></strong><br>
+                                <span style="font-size: 0.8em;">📧 <?= htmlspecialchars($e['teacher_email']) ?></span>
+                            </div>
                         </td>
                         <td>
                             <div class="small text-dark"><i data-lucide="clock" class="me-1" style="width: 14px; height: 14px;"></i> <?= $e['duration_minutes'] ?> Mins</div>
@@ -149,6 +204,56 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                <?php 
+                // Previous button
+                if ($page > 1): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="exams.php?page=<?= $page - 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $trade_id > 0 ? '&trade_id=' . $trade_id : '' ?><?= $subject_id > 0 ? '&subject_id=' . $subject_id : '' ?>">Previous</a>
+                </li>
+                <?php endif; ?>
+                
+                <?php 
+                // Page numbers with smart range
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+                
+                if ($start_page > 1): 
+                ?>
+                <li class="page-item"><a class="page-link" href="exams.php?page=1<?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $trade_id > 0 ? '&trade_id=' . $trade_id : '' ?><?= $subject_id > 0 ? '&subject_id=' . $subject_id : '' ?>">1</a></li>
+                <?php if ($start_page > 2): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; endif; ?>
+                
+                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                    <a class="page-link" href="exams.php?page=<?= $i ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $trade_id > 0 ? '&trade_id=' . $trade_id : '' ?><?= $subject_id > 0 ? '&subject_id=' . $subject_id : '' ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+                
+                <?php 
+                if ($end_page < $total_pages): 
+                    if ($end_page < $total_pages - 1): 
+                ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <li class="page-item"><a class="page-link" href="exams.php?page=<?= $total_pages ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $trade_id > 0 ? '&trade_id=' . $trade_id : '' ?><?= $subject_id > 0 ? '&subject_id=' . $subject_id : '' ?>"><?= $total_pages ?></a></li>
+                <?php endif; ?>
+                
+                <?php 
+                // Next button
+                if ($page < $total_pages): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="exams.php?page=<?= $page + 1 ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $trade_id > 0 ? '&trade_id=' . $trade_id : '' ?><?= $subject_id > 0 ? '&subject_id=' . $subject_id : '' ?>">Next</a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
     </div>
 </div>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

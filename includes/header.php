@@ -38,9 +38,9 @@ $classAttr = !empty($htmlClasses) ? ' class="' . implode(' ', $htmlClasses) . '"
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Dark Mode Theme CSS -->
-    <link href="/assets/css/dark-mode.css" rel="stylesheet">
+    <link href="/EXAMs/assets/css/dark-mode.css" rel="stylesheet">
     <!-- Analytics Dashboard CSS -->
-    <link href="/assets/css/analytics.css" rel="stylesheet">
+    <link href="/EXAMs/assets/css/analytics.css" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
@@ -764,7 +764,7 @@ $classAttr = !empty($htmlClasses) ? ' class="' . implode(' ', $htmlClasses) . '"
         });
     </script>
     <!-- Dark Mode Manager -->
-    <script src="/assets/js/dark-mode.js"></script>
+    <script src="/EXAMs/assets/js/dark-mode.js"></script>
 </head>
 <body>
     <div class="wrapper">

@@ -840,4 +840,378 @@ function resendApprovalEmail($user_id) {
     }
 }
 
+/**
+ * ============================================================================
+ * TEACHER PROMOTION EMAIL NOTIFICATION
+ * ============================================================================
+ * 
+ * Send email to user when they are promoted to teacher role
+ * Includes: Teacher welcome message and portal access information
+ */
+function sendTeacherPromotionNotificationEmail($email, $full_name, $user_id) {
+    try {
+        // Validate inputs
+        if (empty($email) || empty($full_name) || empty($user_id)) {
+            error_log('sendTeacherPromotionNotificationEmail: Invalid parameters provided');
+            return false;
+        }
+
+        // Get mailer instance
+        $mail = getMailer();
+        if (!$mail) {
+            error_log('sendTeacherPromotionNotificationEmail: Failed to initialize mailer');
+            return false;
+        }
+
+        // Email subject
+        $subject = "🎓 You've Been Promoted to Teacher - " . APP_NAME;
+
+        // Build portal URL
+        $portal_url = BASE_URL . '/teacher/dashboard.php';
+
+        // Professional HTML email content
+        $htmlContent = "
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    background: #f5f5f5;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 40px 20px;
+                    text-align: center;
+                }
+                .header h1 {
+                    font-size: 28px;
+                    margin-bottom: 10px;
+                    font-weight: 600;
+                }
+                .header p {
+                    font-size: 14px;
+                    opacity: 0.9;
+                }
+                .promotion-badge {
+                    display: inline-block;
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    margin-top: 10px;
+                }
+                .content {
+                    padding: 40px 30px;
+                }
+                .greeting {
+                    font-size: 16px;
+                    margin-bottom: 20px;
+                    color: #333;
+                }
+                .promotion-message {
+                    background: #e7f3ff;
+                    border: 1px solid #b3d9ff;
+                    color: #004085;
+                    padding: 20px;
+                    border-radius: 4px;
+                    margin: 20px 0;
+                    font-size: 14px;
+                }
+                .promotion-message strong {
+                    display: block;
+                    margin-bottom: 10px;
+                    font-size: 16px;
+                }
+                .teacher-info {
+                    background: #f8f9ff;
+                    border-left: 4px solid #667eea;
+                    padding: 20px;
+                    border-radius: 4px;
+                    margin: 25px 0;
+                }
+                .teacher-info h3 {
+                    color: #667eea;
+                    font-size: 14px;
+                    margin-bottom: 15px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .info-item {
+                    margin: 12px 0;
+                    padding: 10px;
+                    background: white;
+                    border-radius: 4px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .info-label {
+                    font-weight: 600;
+                    color: #555;
+                    font-size: 13px;
+                }
+                .info-value {
+                    font-family: 'Courier New', monospace;
+                    color: #667eea;
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+                .features {
+                    margin: 25px 0;
+                }
+                .features h3 {
+                    color: #333;
+                    font-size: 14px;
+                    margin-bottom: 15px;
+                    font-weight: 600;
+                }
+                .feature-item {
+                    padding: 12px 15px;
+                    margin-bottom: 10px;
+                    background: #f9f9f9;
+                    border-left: 3px solid #667eea;
+                    border-radius: 2px;
+                    font-size: 13px;
+                }
+                .feature-icon {
+                    display: inline-block;
+                    width: 24px;
+                    height: 24px;
+                    background: #667eea;
+                    color: white;
+                    border-radius: 50%;
+                    text-align: center;
+                    line-height: 24px;
+                    font-weight: bold;
+                    margin-right: 10px;
+                    font-size: 14px;
+                }
+                .cta-section {
+                    text-align: center;
+                    margin: 30px 0;
+                    padding: 20px;
+                    background: #f0f5ff;
+                    border-radius: 4px;
+                }
+                .cta-button {
+                    display: inline-block;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white !important;
+                    padding: 14px 40px;
+                    border-radius: 4px;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 15px;
+                    margin: 10px 0;
+                    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                }
+                .important-note {
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    color: #856404;
+                    padding: 15px;
+                    border-radius: 4px;
+                    margin: 20px 0;
+                    font-size: 12px;
+                }
+                .important-note strong {
+                    display: block;
+                    margin-bottom: 8px;
+                }
+                .footer {
+                    background: #f5f5f5;
+                    padding: 20px 30px;
+                    border-top: 1px solid #eee;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #888;
+                }
+                .footer p {
+                    margin: 5px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='email-container'>
+                <!-- Header -->
+                <div class='header'>
+                    <h1>🎓 Teacher Promotion!</h1>
+                    <p>You're now an instructor in " . APP_NAME . "</p>
+                    <div class='promotion-badge'>✨ New Role: Teacher</div>
+                </div>
+
+                <!-- Content -->
+                <div class='content'>
+                    <!-- Greeting -->
+                    <p class='greeting'>Dear <strong>" . htmlspecialchars($full_name) . "</strong>,</p>
+
+                    <!-- Promotion Message -->
+                    <div class='promotion-message'>
+                        <strong>Congratulations! 🎉</strong>
+                        You have been promoted to Teacher role. You now have access to create and manage exams, assign questions, and monitor student performance.
+                    </div>
+
+                    <p style='margin-bottom: 20px; font-size: 14px;'>
+                        As a teacher, you have exclusive access to advanced features that allow you to create quality assessments and track student learning outcomes effectively.
+                    </p>
+
+                    <!-- Teacher Info -->
+                    <div class='teacher-info'>
+                        <h3>👨‍🏫 Your Teacher Account</h3>
+                        <div class='info-item'>
+                            <span class='info-label'>User ID:</span>
+                            <span class='info-value'>" . htmlspecialchars($user_id) . "</span>
+                        </div>
+                        <div class='info-item'>
+                            <span class='info-label'>Email:</span>
+                            <span class='info-value'>" . htmlspecialchars($email) . "</span>
+                        </div>
+                        <div class='info-item'>
+                            <span class='info-label'>Role:</span>
+                            <span class='info-value'>✅ Teacher</span>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div class='features'>
+                        <h3>✨ Teacher Features Available</h3>
+                        <div class='feature-item'>
+                            <span class='feature-icon'>📝</span>
+                            <span>Create and manage exams</span>
+                        </div>
+                        <div class='feature-item'>
+                            <span class='feature-icon'>❓</span>
+                            <span>Add and organize questions</span>
+                        </div>
+                        <div class='feature-item'>
+                            <span class='feature-icon'>📊</span>
+                            <span>View student results and analytics</span>
+                        </div>
+                        <div class='feature-item'>
+                            <span class='feature-icon'>👥</span>
+                            <span>Manage subject assignments</span>
+                        </div>
+                        <div class='feature-item'>
+                            <span class='feature-icon'>📤</span>
+                            <span>Upload multimedia content</span>
+                        </div>
+                    </div>
+
+                    <!-- CTA Section -->
+                    <div class='cta-section'>
+                        <p style='margin-bottom: 15px; font-size: 14px;'>Access your teacher dashboard:</p>
+                        <a href='" . htmlspecialchars($portal_url) . "' class='cta-button'>Go to Teacher Dashboard →</a>
+                        <p style='margin-top: 15px; font-size: 12px; color: #666;'>Or visit: <span style='font-family: monospace;'>" . htmlspecialchars($portal_url) . "</span></p>
+                    </div>
+
+                    <!-- Important Note -->
+                    <div class='important-note'>
+                        <strong>📌 Important Reminders</strong>
+                        <ul style='margin-left: 20px; margin-top: 8px;'>
+                            <li>Review the Teacher Guide before creating your first exam</li>
+                            <li>Set appropriate passing marks and difficulty levels</li>
+                            <li>Ensure exam questions are clear and relevant</li>
+                            <li>Monitor student submissions and provide feedback</li>
+                        </ul>
+                    </div>
+
+                    <!-- Support -->
+                    <p style='margin-top: 25px; font-size: 13px; color: #666;'>
+                        If you have any questions or need assistance, please contact the administrator at <strong>" . MAIL_FROM_EMAIL . "</strong>
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div class='footer'>
+                    <p><strong>" . APP_NAME . "</strong></p>
+                    <p>Online Examination & Learning Management System</p>
+                    <p style='margin-top: 15px; color: #aaa;'>This is an automated email. Please do not reply to this message.</p>
+                    <p style='margin-top: 10px; font-size: 11px;'>© " . date('Y') . " " . APP_NAME . ". All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+
+        // Plain text version as fallback
+        $textContent = "
+CONGRATULATIONS! YOU'VE BEEN PROMOTED TO TEACHER
+
+Dear " . $full_name . ",
+
+You have been promoted to Teacher role in " . APP_NAME . "!
+
+YOUR ACCOUNT DETAILS:
+User ID: " . $user_id . "
+Email: " . $email . "
+Role: Teacher
+
+AVAILABLE FEATURES:
+✓ Create and manage exams
+✓ Add and organize questions
+✓ View student results and analytics
+✓ Manage subject assignments
+✓ Upload multimedia content
+
+NEXT STEPS:
+1. Log in to your account
+2. Review the Teacher Guide (if available)
+3. Create your first exam
+4. Assign questions to your exam
+5. Publish the exam for students
+
+IMPORTANT REMINDERS:
+- Set appropriate passing marks
+- Ensure questions are clear and relevant
+- Monitor student submissions
+- Provide timely feedback to students
+
+For support, contact: " . MAIL_FROM_EMAIL . "
+
+Access your teacher dashboard: " . htmlspecialchars($portal_url) . "
+
+This is an automated email. Please do not reply.
+        ";
+
+        // Configure email
+        $mail->addAddress($email, $full_name);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $htmlContent;
+        $mail->AltBody = $textContent;
+
+        // Send email
+        if ($mail->send()) {
+            logEmailNotification($email, 'teacher_promotion', 'sent', $user_id);
+            return true;
+        } else {
+            error_log('PHPMailer Error: ' . $mail->ErrorInfo);
+            logEmailNotification($email, 'teacher_promotion', 'failed', $user_id, $mail->ErrorInfo);
+            return false;
+        }
+
+    } catch (Exception $e) {
+        error_log('Teacher Promotion Email Exception: ' . $e->getMessage());
+        logEmailNotification($email ?? 'unknown', 'teacher_promotion', 'failed', $user_id ?? 0, $e->getMessage());
+        return false;
+    }
+}
+
 ?>

@@ -45,9 +45,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
                             <div class="alert alert-danger py-2 small fw-bold">Certificate Revoked</div>
                         <?php elseif ($cert['certificate_id']): ?>
                             <p class="small text-muted font-monospace mb-2">ID: <?= htmlspecialchars($cert['certificate_id']) ?></p>
-                            <a href="certificate_view.php?id=<?= $cert['result_id'] ?>" target="_blank" class="btn btn-success w-100 fw-bold d-flex justify-content-center align-items-center">
-                                <i data-lucide="download" class="me-2" style="width:16px;"></i> View & Download
-                            </a>
+                            <div class="d-grid gap-2">
+                                <a href="certificate_view.php?id=<?= $cert['result_id'] ?>" target="_blank" class="btn btn-outline-success fw-bold d-flex justify-content-center align-items-center">
+                                    <i data-lucide="eye" class="me-2" style="width:16px;"></i> View
+                                </a>
+                                <a href="certificate_download.php?id=<?= $cert['result_id'] ?>" class="btn btn-success fw-bold d-flex justify-content-center align-items-center">
+                                    <i data-lucide="download" class="me-2" style="width:16px;"></i> Download PDF
+                                </a>
+                            </div>
                         <?php else: ?>
                             <a href="certificate_view.php?id=<?= $cert['result_id'] ?>" target="_blank" class="btn btn-primary w-100 fw-bold d-flex justify-content-center align-items-center">
                                 <i data-lucide="sparkles" class="me-2" style="width:16px;"></i> Generate Certificate

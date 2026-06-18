@@ -30,6 +30,9 @@ if (isLoggedIn()) {
                 <?php if (hasRole('superadmin') || hasRole('admin')): ?>
                     <li><a href="<?= BASE_URL ?>/admin/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/users.php"><i data-lucide="users"></i> Manage Users</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/add_teacher.php"><i data-lucide="user-plus"></i> Add Teacher</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/manage_subject_teachers.php"><i data-lucide="book-open"></i> Manage Teachers</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/assign_student_trades.php"><i data-lucide="link-2"></i> Assign Trades</a></li>
                     <?php if (hasRole('superadmin')): ?>
                         <li><a href="<?= BASE_URL ?>/admin/deleted_users_archive.php"><i data-lucide="archive"></i> Deleted Users Archive</a></li>
                     <?php endif; ?>
@@ -38,10 +41,13 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/admin/analytics_dashboard.php"><i data-lucide="bar-chart-3"></i> Advanced Analytics</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/videos/list.php"><i data-lucide="video"></i> Manage Videos</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/notes.php"><i data-lucide="file-text"></i> Study Notes</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/material_analytics.php"><i data-lucide="bar-chart-3"></i> Material Analytics</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/certificate_config.php"><i data-lucide="settings"></i> Certificate Config</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/release_certificates.php"><i data-lucide="file-check"></i> Release Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/notifications.php"><i data-lucide="bell-ring"></i> Notifications</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/manage_carousel_photos.php"><i data-lucide="image"></i> Carousel Photos</a></li>
@@ -50,10 +56,12 @@ if (isLoggedIn()) {
                 <?php elseif (hasRole('moderator')): ?>
                     <li><a href="<?= BASE_URL ?>/moderator/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/notes.php"><i data-lucide="file-text"></i> Study Notes</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/material_analytics.php"><i data-lucide="bar-chart-3"></i> Material Analytics</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/release_certificates.php"><i data-lucide="file-check"></i> Release Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
                     <li><a href="#"><i data-lucide="pen-tool"></i> Grade Answers</a></li>
                     <li><a href="<?= BASE_URL ?>/moderator/community.php"><i data-lucide="shield-alert"></i> Moderation</a></li>
@@ -62,6 +70,7 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/student/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
                     <li><a href="<?= BASE_URL ?>/student/progress.php"><i data-lucide="trending-up"></i> My Progress</a></li>
                     <li><a href="<?= BASE_URL ?>/student/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/notes.php"><i data-lucide="file-text"></i> Study Notes</a></li>
                     <li><a href="<?= BASE_URL ?>/student/recommendations.php"><i data-lucide="sparkles"></i> Recommendations</a></li>
                     <li><a href="<?= BASE_URL ?>/student/ai_recommendations.php"><i data-lucide="brain"></i> AI Recommendations</a></li>
                     <li><a href="<?= BASE_URL ?>/student/video_streaming.php"><i data-lucide="video"></i> Video Learning</a></li>

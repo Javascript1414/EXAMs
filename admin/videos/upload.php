@@ -418,31 +418,37 @@ require_once __DIR__ . '/../../includes/header.php';
             }
         }
 
-        // YouTube URL preview
+        // YouTube URL preview with enhanced validation
         youtubeInput.addEventListener('input', function() {
-            const url = this.value;
+            const url = this.value.trim();
             let videoId = '';
-
-            // Extract video ID from various YouTube URL formats
+            
+            // Extract video ID from various YouTube URL formats (11-char alphanumeric + hyphens/underscores)
             if (url.includes('youtube.com')) {
-                const match = url.match(/[?&]v=([^&]*)/);
+                const match = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
                 if (match) videoId = match[1];
             } else if (url.includes('youtu.be')) {
-                const match = url.match(/youtu\.be\/([^?]*)/);
+                const match = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
                 if (match) videoId = match[1];
+            } else if (url.match(/^[a-zA-Z0-9_-]{11}$/)) {
+                // Direct video ID
+                videoId = url;
             }
 
-            if (videoId) {
-                const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+            if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1`;
                 youtubeEmbed.innerHTML = `
                     <iframe width="100%" height="250" src="${embedUrl}" 
-                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; 
-                        encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                        frameborder="0" allow="accelerometer; clipboard-write; 
+                        encrypted-media; gyroscope; picture-in-picture" allowfullscreen
+                        loading="lazy">
                     </iframe>
                 `;
                 youtubePreview.style.display = 'block';
+                console.log('✓ Valid YouTube video ID:', videoId);
             } else {
                 youtubePreview.style.display = 'none';
+                if (url && !videoId) console.warn('⚠ Invalid YouTube URL or video ID format');
             }
         });
 

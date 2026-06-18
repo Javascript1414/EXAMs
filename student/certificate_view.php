@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/certificate_generator.php';
 requireLogin();
 
 $result_id = (int)($_GET['id'] ?? 0);
@@ -36,19 +37,22 @@ $certificate = $certStmt->fetch();
 // Auto-Generate if missing
 if (!$certificate) {
     try {
-        $cert_id = 'CERT-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 10));
-        $verify_code = strtoupper(substr(bin2hex(random_bytes(8)), 0, 12));
+        $result_data = [
+            'obtained_marks' => $result['obtained_marks'],
+            'total_marks' => $result['total_marks'],
+            'percentage' => $result['percentage'],
+            'created_at' => $result['created_at'] ?? date('Y-m-d H:i:s')
+        ];
         
-        $insert = $pdo->prepare("INSERT INTO certificates (certificate_id, student_id, exam_id, result_id, score, percentage, verification_code, generated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $generated_by = $_SESSION['user_id'] ?? null;
-        $insert->execute([$cert_id, $result['student_id'], $result['exam_id'], $result_id, $result['obtained_marks'], $result['percentage'], $verify_code, $generated_by]);
+        $cert_result = insertCertificate($pdo, $result['student_id'], $result['exam_id'], $result_id, $result_data, $_SESSION['user_id'] ?? null);
         
-        // Flag result table
-        $pdo->prepare("UPDATE results SET certificate_generated = 1 WHERE id = ?")->execute([$result_id]);
-        
-        // Fetch newly generated
-        $certStmt->execute([$result_id]);
-        $certificate = $certStmt->fetch();
+        if ($cert_result && $cert_result['success']) {
+            // Fetch newly generated certificate
+            $certStmt->execute([$result_id]);
+            $certificate = $certStmt->fetch();
+        } else {
+            die("Error generating certificate. Please try again or contact support.");
+        }
     } catch (PDOException $e) {
         error_log("Certificate Generation Error: " . $e->getMessage());
         die("Error generating certificate. Please try again or contact support.");
@@ -73,50 +77,122 @@ $verify_url = BASE_URL . '/verify.php?code=' . urlencode($certificate['verificat
     <style>
         body { background: #e5e7eb; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: 'Georgia', serif; }
         .cert-container { background: #fff; width: 1000px; height: 700px; padding: 40px; box-sizing: border-box; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .cert-border { border: 12px double #0056D2; height: 100%; box-sizing: border-box; padding: 40px; text-align: center; position: relative; background: #fffaf0; }
-        .title { font-size: 48px; color: #0056D2; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .subtitle { font-size: 20px; color: #4b5563; margin-bottom: 40px; letter-spacing: 1px; }
-        .presented-to { font-size: 18px; color: #6b7280; font-style: italic; margin-bottom: 10px; }
-        .student-name { font-size: 42px; color: #111827; font-weight: bold; border-bottom: 2px solid #d1d5db; display: inline-block; padding-bottom: 5px; margin-bottom: 30px; }
-        .reason { font-size: 18px; color: #4b5563; margin-bottom: 20px; line-height: 1.6; }
-        .course-name { font-size: 26px; color: #0056D2; font-weight: bold; margin-bottom: 40px; }
-        .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 50px; padding: 0 40px; }
-        .sig-box { text-align: center; width: 200px; border-top: 1px solid #000; padding-top: 10px; font-family: 'Arial', sans-serif; font-size: 14px; color: #374151; }
-        .meta-data { position: absolute; bottom: 15px; left: 15px; text-align: left; font-family: 'Arial', sans-serif; font-size: 11px; color: #9ca3af; }
-        .qr-box { position: absolute; bottom: 30px; right: 40px; text-align: center; font-family: 'Arial', sans-serif; font-size: 12px; }
-        .qr-box img { width: 100px; height: 100px; margin-bottom: 5px; }
+        .cert-border { border: 8px double #003d82; height: 100%; box-sizing: border-box; padding: 40px; text-align: center; position: relative; background: #fafafa; }
+        .cert-corner { position: absolute; width: 20px; height: 20px; border: 2px solid #003d82; }
+        .cert-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .cert-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+        .cert-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+        .cert-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+        .institution-name { font-size: 24px; color: #003d82; font-weight: bold; margin-bottom: 5px; }
+        .institution-city { font-size: 16px; color: #555; margin-bottom: 20px; }
+        .cert-title { font-size: 48px; color: #003d82; font-weight: bold; letter-spacing: 3px; margin: 20px 0; }
+        .cert-subtitle { font-size: 16px; color: #666; margin-bottom: 20px; letter-spacing: 2px; }
+        .date-issued { position: absolute; top: 60px; right: 60px; font-size: 12px; color: #666; }
+        .date-issued-label { font-size: 10px; color: #999; }
+        .certify-text { font-size: 16px; color: #333; margin: 20px 0; }
+        .student-name { font-size: 48px; color: #003d82; font-weight: bold; font-style: italic; margin: 15px 0; border-bottom: 2px solid #003d82; padding-bottom: 10px; }
+        .achievement-text { font-size: 14px; color: #333; line-height: 1.8; margin: 20px 0; }
+        .details-table { width: 100%; margin: 25px 0; border-collapse: collapse; font-size: 13px; }
+        .details-table td { padding: 8px 15px; border-bottom: 1px solid #ddd; }
+        .details-label { text-align: left; font-weight: bold; color: #003d82; width: 30%; }
+        .details-value { text-align: left; color: #333; }
+        .footer-row { display: flex; justify-content: space-around; align-items: flex-end; margin-top: 30px; padding: 0 20px; }
+        .sig-box { text-align: center; width: 150px; }
+        .sig-line { border-top: 1px solid #000; height: 40px; margin-bottom: 5px; }
+        .sig-text { font-size: 11px; color: #333; font-weight: bold; }
+        .qr-box { position: absolute; bottom: 30px; right: 40px; text-align: center; }
+        .qr-box img { width: 90px; height: 90px; }
+        .qr-text { font-size: 11px; color: #666; margin-top: 5px; font-weight: bold; }
         @media print {
             body { background: #fff; margin: 0; }
-            .cert-container { box-shadow: none; width: 100%; height: 100%; page-break-after: avoid; }
+            .cert-container { box-shadow: none; width: 100%; height: 100%; }
             .no-print { display: none; }
         }
-        .btn-print { position: fixed; top: 20px; right: 20px; background: #0056D2; color: #fff; padding: 10px 20px; border: none; font-size: 16px; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: Arial; }
+        .btn-print { position: fixed; top: 20px; right: 20px; background: #0056D2; color: #fff; padding: 10px 20px; border: none; font-size: 16px; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: Arial; z-index: 1000; }
         .btn-print:hover { background: #0044a8; }
     </style>
 </head>
 <body>
-    <button class="no-print btn-print" onclick="window.print()">Print / Save PDF</button>
+    <div class="no-print" style="position: fixed; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;">
+        <a href="<?= BASE_URL ?>/student/certificate_download.php?id=<?= $result_id ?>" class="btn-print" style="background: #28a745; text-decoration: none;">↓ Download PDF</a>
+        <button class="btn-print" onclick="window.print()" style="background: #0056D2;">🖨️ Print</button>
+    </div>
     
     <div class="cert-container">
         <div class="cert-border">
-            <div class="title">Certificate of Achievement</div>
-            <div class="subtitle">This verifies the successful completion of the assessment</div>
+            <div class="cert-corner tl"></div>
+            <div class="cert-corner tr"></div>
+            <div class="cert-corner bl"></div>
+            <div class="cert-corner br"></div>
             
-            <div class="presented-to">Proudly presented to</div>
-            <div class="student-name"><?= htmlspecialchars($result['full_name']) ?></div>
-            
-            <div class="reason">For passing the official examination and demonstrating proficiency in</div>
-            <div class="course-name"><?= htmlspecialchars($result['exam_name']) ?><br><span style="font-size: 18px; color: #4b5563; font-weight: normal;"><?= htmlspecialchars($result['subject_name']) ?> &bull; <?= htmlspecialchars($result['trade_name']) ?></span></div>
-            
-            <div class="footer-grid">
-                <div class="sig-box">Issue Date<br><strong style="color:#000; font-size:16px;"><?= date('F j, Y', strtotime($certificate['issued_at'])) ?></strong></div>
-                <div class="sig-box">Score Achieved<br><strong style="color:#000; font-size:16px;"><?= (float)$certificate['percentage'] ?>%</strong></div>
+            <!-- Header -->
+            <div style="margin-bottom: 10px;">
+                <div class="institution-name">National Skill Training Institute</div>
+                <div class="institution-city">Kolkata</div>
             </div>
 
-            <div class="meta-data">Certificate ID: <?= htmlspecialchars($certificate['certificate_id']) ?><br>Verify at: <?= BASE_URL ?>/verify.php</div>
+            <div class="cert-title">CERTIFICATE</div>
+            <div class="cert-subtitle">OF ACHIEVEMENT</div>
+
+            <div class="date-issued">
+                <div class="date-issued-label">Date of Issue:</div>
+                <strong><?= date('d M Y', strtotime($certificate['issued_at'])) ?></strong>
+            </div>
+
+            <!-- Certification Statement -->
+            <div class="certify-text">This is to certify that</div>
+            
+            <!-- Student Name -->
+            <div class="student-name"><?= htmlspecialchars($result['full_name']) ?></div>
+
+            <!-- Achievement Text -->
+            <div class="achievement-text">
+                has successfully appeared and passed the examination conducted by National Skill Training Institute, Kolkata.
+            </div>
+
+            <!-- Details Table -->
+            <table class="details-table">
+                <tr>
+                    <td class="details-label">EXAM TYPE</td>
+                    <td class="details-value">: <?= htmlspecialchars($result['exam_name']) ?></td>
+                </tr>
+                <tr>
+                    <td class="details-label">MARKS OBTAINED</td>
+                    <td class="details-value">: <?= (float)($certificate['obtained_marks'] ?? $result['obtained_marks']) ?> / <?= (float)($certificate['total_marks'] ?? $result['total_marks']) ?></td>
+                </tr>
+                <tr>
+                    <td class="details-label">PERCENTAGE</td>
+                    <td class="details-value">: <?= (float)$result['percentage'] ?>%</td>
+                </tr>
+                <tr>
+                    <td class="details-label">GRADE</td>
+                    <td class="details-value">: <?= htmlspecialchars($certificate['grade'] ?? 'N/A') ?></td>
+                </tr>
+                <tr>
+                    <td class="details-label">CERTIFICATE ID</td>
+                    <td class="details-value">: <?= htmlspecialchars($certificate['certificate_id']) ?></td>
+                </tr>
+            </table>
+
+            <!-- Footer with Signature -->
+            <div class="footer-row">
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-text">Administrator</div>
+                </div>
+                <div style="text-align: center;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23003d82' stroke-width='2'/%3E%3Cpath d='M50 20 L65 35 L50 50 L35 35 Z' fill='%23003d82'/%3E%3Crect x='40' y='55' width='20' height='25' fill='%23003d82'/%3E%3C/svg%3E" style="width: 40px; height: 40px;" alt="Institute Logo">
+                </div>
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-text">Authorized Officer</div>
+                </div>
+            </div>
+
+            <!-- QR Code -->
             <div class="qr-box">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode($verify_url) ?>" alt="QR Code">
-                <br>Scan to Verify
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?= urlencode($verify_url) ?>" alt="QR Code">
+                <div class="qr-text">Scan to Verify Certificate</div>
             </div>
         </div>
     </div>

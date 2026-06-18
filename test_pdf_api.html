@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Preview API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .pending { background: #e2e3e5; color: #383d41; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>PDF Preview API Test</h1>
+    <p>Click the button below to test the PDF preview API endpoints</p>
+    
+    <button onclick="testAPI()">Test API</button>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+            
+            // Get first PDF file from database
+            const apiTest = async () => {
+                const tests = [];
+                
+                // Test 1: Get sample PDF
+                const sampleFile = 'uploads/notes/1781797959_Sample_Notes_-_Arrays_and_Linked_Lists.pdf';
+                const checkUrl = '/api/check-pdf.php?file=' + encodeURIComponent(sampleFile);
+                
+                try {
+                    const test = document.createElement('div');
+                    test.className = 'test pending';
+                    test.innerHTML = '<h3>Testing Check-PDF API</h3><p>URL: ' + checkUrl + '</p><p>Status: Calling API...</p>';
+                    results.appendChild(test);
+                    
+                    const response = await fetch(checkUrl, { 
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    test.className = data.success ? 'test success' : 'test error';
+                    test.innerHTML += '<p>Response Status: ' + response.status + '</p>';
+                    test.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    
+                } catch (error) {
+                    const test = document.createElement('div');
+                    test.className = 'test error';
+                    test.innerHTML = '<h3>Error Testing API</h3><p>' + error.message + '</p>';
+                    results.appendChild(test);
+                }
+            };
+            
+            await apiTest();
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, ready to test');
+        });
+    </script>
+</body>
+</html>

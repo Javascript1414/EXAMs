@@ -54,8 +54,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('/admin/trades.php');
 }
 
-// Fetch Trades
-$stmt = $pdo->query("SELECT * FROM trades ORDER BY trade_name ASC");
+// Pagination
+$page = (int)($_GET['page'] ?? 1);
+if ($page < 1) $page = 1;
+
+$trades_per_page = 10;
+
+// Get total count for pagination
+$count_stmt = $pdo->query("SELECT COUNT(*) as total FROM trades");
+$total_trades = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
+$total_pages = ceil($total_trades / $trades_per_page);
+
+if ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
+$offset = ($page - 1) * $trades_per_page;
+
+// Fetch Trades with pagination
+$stmt = $pdo->prepare("SELECT * FROM trades ORDER BY trade_name ASC LIMIT ? OFFSET ?");
+$stmt->execute([$trades_per_page, $offset]);
 $trades = $stmt->fetchAll();
 
 require_once __DIR__ . '/../includes/header.php';
@@ -110,6 +128,63 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 </tbody>
             </table>
         </div>
+        
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="text-muted small">
+                    Showing <?= (($page - 1) * $trades_per_page) + 1 ?> to <?= min($page * $trades_per_page, $total_trades) ?> of <?= $total_trades ?> trades
+                </div>
+            </div>
+            <ul class="pagination justify-content-center mb-0">
+                <?php 
+                // Previous button
+                if ($page > 1): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="trades.php?page=<?= $page - 1 ?>">Previous</a>
+                </li>
+                <?php endif; ?>
+                
+                <?php 
+                // Page numbers with smart range
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+                
+                if ($start_page > 1): 
+                ?>
+                <li class="page-item"><a class="page-link" href="trades.php?page=1">1</a></li>
+                <?php if ($start_page > 2): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; endif; ?>
+                
+                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                    <a class="page-link" href="trades.php?page=<?= $i ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+                
+                <?php 
+                if ($end_page < $total_pages): 
+                    if ($end_page < $total_pages - 1): 
+                ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <li class="page-item"><a class="page-link" href="trades.php?page=<?= $total_pages ?>"><?= $total_pages ?></a></li>
+                <?php endif; ?>
+                
+                <?php 
+                // Next button
+                if ($page < $total_pages): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="trades.php?page=<?= $page + 1 ?>">Next</a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+        <?php endif; ?>
     </div>
 </div>
 

@@ -108,6 +108,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $uploadDir = __DIR__ . '/../uploads/temp_imports/';
                     if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
                     
+                    // Clean up old temp files (older than 1 hour)
+                    foreach (glob($uploadDir . '*') as $oldFile) {
+                        if (is_file($oldFile) && time() - filemtime($oldFile) > 3600) {
+                            @unlink($oldFile);
+                        }
+                    }
+                    
                     $tmpFile = $uploadDir . time() . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
                     if (move_uploaded_file($_FILES['import_file']['tmp_name'], $tmpFile)) {
                         $step = 2;
@@ -128,6 +135,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['error_message'] = "Temporary file expired or invalid. Please upload again.";
                 redirect('/admin/question_import.php');
             }
+        } elseif ($action === 'cancel') {
+            // Clean up temp file if canceling
+            $tmpFile = $_POST['tmp_file'] ?? '';
+            if (!empty($tmpFile) && file_exists($tmpFile)) {
+                @unlink($tmpFile);
+            }
+            redirect('/admin/question_import.php');
         }
 
         // Execute Parsing logic for both Preview and Import steps

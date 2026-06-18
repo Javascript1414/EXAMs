@@ -32,7 +32,7 @@ try {
     }
     
     // Check if user has permission (student role)
-    if ($_SESSION['role'] !== 'student') {
+    if ($_SESSION['role_name'] !== 'student') {
         http_response_code(403);
         die('Access denied');
     }

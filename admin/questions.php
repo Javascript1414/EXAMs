@@ -37,35 +37,80 @@ $search = sanitizeInput($_GET['search'] ?? '');
 $trade_id = (int)($_GET['trade_id'] ?? 0);
 $subject_id = (int)($_GET['subject_id'] ?? 0);
 $difficulty = sanitizeInput($_GET['difficulty'] ?? '');
+$page = (int)($_GET['page'] ?? 1);
+if ($page < 1) $page = 1;
 
-$query = "SELECT q.*, t.trade_name, s.subject_name 
-          FROM questions q 
-          JOIN trades t ON q.trade_id = t.id 
-          JOIN subjects s ON q.subject_id = s.id 
-          WHERE 1=1";
+$questions_per_page = 10;
+
+$base_query = "SELECT q.*, t.trade_name, s.subject_name, s.id as subject_id_val
+               FROM questions q 
+               JOIN trades t ON q.trade_id = t.id 
+               JOIN subjects s ON q.subject_id = s.id 
+               WHERE 1=1";
 $params = [];
 
 if (!empty($search)) {
-    $query .= " AND q.question_text LIKE ?";
+    $base_query .= " AND q.question_text LIKE ?";
     $params[] = "%$search%";
 }
 if ($trade_id > 0) {
-    $query .= " AND q.trade_id = ?";
+    $base_query .= " AND q.trade_id = ?";
     $params[] = $trade_id;
 }
 if ($subject_id > 0) {
-    $query .= " AND q.subject_id = ?";
+    $base_query .= " AND q.subject_id = ?";
     $params[] = $subject_id;
 }
 if (!empty($difficulty)) {
-    $query .= " AND q.difficulty = ?";
+    $base_query .= " AND q.difficulty = ?";
     $params[] = $difficulty;
 }
 
-$query .= " ORDER BY q.created_at DESC";
+// Get total count for pagination
+$count_query = "SELECT COUNT(*) as total FROM questions q 
+                JOIN trades t ON q.trade_id = t.id 
+                JOIN subjects s ON q.subject_id = s.id WHERE 1=1";
+if (!empty($search)) {
+    $count_query .= " AND q.question_text LIKE ?";
+}
+if ($trade_id > 0) {
+    $count_query .= " AND q.trade_id = ?";
+}
+if ($subject_id > 0) {
+    $count_query .= " AND q.subject_id = ?";
+}
+if (!empty($difficulty)) {
+    $count_query .= " AND q.difficulty = ?";
+}
+
+$count_stmt = $pdo->prepare($count_query);
+$count_stmt->execute($params);
+$total_questions = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
+$total_pages = ceil($total_questions / $questions_per_page);
+
+if ($page > $total_pages && $total_pages > 0) {
+    $page = $total_pages;
+}
+
+$offset = ($page - 1) * $questions_per_page;
+
+$query = $base_query . " ORDER BY s.subject_name, q.created_at DESC LIMIT ? OFFSET ?";
+$params[] = $questions_per_page;
+$params[] = $offset;
+
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
-$questions = $stmt->fetchAll();
+$all_questions = $stmt->fetchAll();
+
+// Group questions by subject
+$questions_by_subject = [];
+foreach ($all_questions as $q) {
+    $subject_name = $q['subject_name'];
+    if (!isset($questions_by_subject[$subject_name])) {
+        $questions_by_subject[$subject_name] = [];
+    }
+    $questions_by_subject[$subject_name][] = $q;
+}
 
 $trades = $pdo->query("SELECT id, trade_name FROM trades ORDER BY trade_name")->fetchAll();
 $subjects = $pdo->query("SELECT id, subject_name FROM subjects ORDER BY subject_name")->fetchAll();
@@ -126,56 +171,149 @@ require_once __DIR__ . '/../includes/sidebar.php';
     </div>
 
     <div class="card p-4">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th style="max-width: 300px;">Question</th>
-                        <th>Subject & Trade</th>
-                        <th>Details</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($questions as $q): ?>
-                    <tr>
-                        <td class="text-truncate" style="max-width: 300px;" title="<?= htmlspecialchars($q['question_text']) ?>"><?= htmlspecialchars($q['question_text']) ?></td>
-                        <td>
-                            <div class="fw-semibold"><?= htmlspecialchars($q['subject_name']) ?></div>
-                            <div class="small text-muted"><?= htmlspecialchars($q['trade_name']) ?></div>
-                        </td>
-                        <td>
-                            <span class="badge bg-light text-dark border"><?= htmlspecialchars($q['difficulty']) ?></span>
-                            <span class="badge bg-light text-dark border"><?= (float)$q['marks'] ?>M / <?= (float)$q['negative_marks'] ?>M</span>
-                            <span class="badge bg-light text-dark border text-uppercase"><?= str_replace('_', ' ', $q['question_type']) ?></span>
-                        </td>
-                        <td>
-                            <?php 
-                            $badge = match($q['status']) { 'active' => 'bg-success', 'archived' => 'bg-secondary', default => 'bg-warning text-dark' };
-                            echo "<span class='badge {$badge}'>" . ucfirst($q['status']) . "</span>";
-                            ?>
-                        </td>
-                        <td class="text-end">
-                            <a href="question_edit.php?id=<?= $q['id'] ?>" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                            <form method="POST" action="" class="d-inline">
-                                <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
-                                <input type="hidden" name="id" value="<?= $q['id'] ?>">
-                                <?php if($q['status'] !== 'archived'): ?>
-                                    <button type="submit" name="action" value="archive" class="btn btn-sm btn-outline-secondary me-1" onclick="return confirm('Archive this question?');">Archive</button>
-                                <?php endif; ?>
-                                <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-danger" onclick="return confirm('Permanently delete this question?');">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($questions)): ?>
-                    <tr><td colspan="5" class="text-center py-4 text-muted">No questions found matching your criteria.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+        <?php if (empty($questions_by_subject)): ?>
+            <div class="text-center py-5 text-muted">
+                <p>No questions found matching your criteria.</p>
+            </div>
+        <?php else: ?>
+            <!-- Subject-wise Accordion -->
+            <div class="accordion" id="subjectAccordion">
+                <?php $accordion_index = 0; foreach ($questions_by_subject as $subject_name => $questions): $accordion_index++; ?>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button <?= $accordion_index !== 1 ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $accordion_index ?>" aria-expanded="<?= $accordion_index === 1 ? 'true' : 'false' ?>" aria-controls="collapse<?= $accordion_index ?>">
+                            <span class="fw-semibold"><?= htmlspecialchars($subject_name) ?></span>
+                            <span class="badge bg-primary ms-2"><?= count($questions) ?></span>
+                        </button>
+                    </h2>
+                    <div id="collapse<?= $accordion_index ?>" class="accordion-collapse collapse <?= $accordion_index === 1 ? 'show' : '' ?>" data-bs-parent="#subjectAccordion">
+                        <div class="accordion-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="max-width: 300px;">Question</th>
+                                            <th>Trade</th>
+                                            <th>Details</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($questions as $q): ?>
+                                        <tr>
+                                            <td class="text-truncate" style="max-width: 300px;" title="<?= htmlspecialchars($q['question_text']) ?>"><?= htmlspecialchars($q['question_text']) ?></td>
+                                            <td>
+                                                <div class="small text-muted"><?= htmlspecialchars($q['trade_name']) ?></div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border"><?= htmlspecialchars($q['difficulty']) ?></span>
+                                                <span class="badge bg-light text-dark border"><?= (float)$q['marks'] ?>M / <?= (float)$q['negative_marks'] ?>M</span>
+                                                <span class="badge bg-light text-dark border text-uppercase"><?= str_replace('_', ' ', $q['question_type']) ?></span>
+                                            </td>
+                                            <td>
+                                                <?php 
+                                                $badge = match($q['status']) { 'active' => 'bg-success', 'archived' => 'bg-secondary', default => 'bg-warning text-dark' };
+                                                echo "<span class='badge {$badge}'>" . ucfirst($q['status']) . "</span>";
+                                                ?>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="question_edit.php?id=<?= $q['id'] ?>" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                                                <form method="POST" action="" class="d-inline">
+                                                    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+                                                    <input type="hidden" name="id" value="<?= $q['id'] ?>">
+                                                    <?php if($q['status'] !== 'archived'): ?>
+                                                        <button type="submit" name="action" value="archive" class="btn btn-sm btn-outline-secondary me-1" onclick="return confirm('Archive this question?');">Archive</button>
+                                                    <?php endif; ?>
+                                                    <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-danger" onclick="return confirm('Permanently delete this question?');">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
-</div>
+    
+    <!-- Pagination -->
+    <div class="card p-4 mt-4">
+        <nav aria-label="Page navigation">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="text-muted small">
+                    Showing <?= (($page - 1) * $questions_per_page) + 1 ?> to <?= min($page * $questions_per_page, $total_questions) ?> of <?= $total_questions ?> questions
+                </div>
+            </div>
+            <ul class="pagination justify-content-center mb-0">
+                <?php 
+                // Previous button
+                if ($page > 1): 
+                    $prev_params = ['page' => $page - 1];
+                    if (!empty($search)) $prev_params['search'] = $search;
+                    if ($trade_id > 0) $prev_params['trade_id'] = $trade_id;
+                    if ($subject_id > 0) $prev_params['subject_id'] = $subject_id;
+                    if (!empty($difficulty)) $prev_params['difficulty'] = $difficulty;
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="questions.php?<?= http_build_query($prev_params) ?>">Previous</a>
+                </li>
+                <?php endif; ?>
+                
+                <?php 
+                // Page numbers with smart range
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+                
+                if ($start_page > 1): 
+                ?>
+                <li class="page-item"><a class="page-link" href="questions.php">1</a></li>
+                <?php if ($start_page > 2): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; endif; ?>
+                
+                <?php for ($i = $start_page; $i <= $end_page; $i++): 
+                    $page_params = ['page' => $i];
+                    if (!empty($search)) $page_params['search'] = $search;
+                    if ($trade_id > 0) $page_params['trade_id'] = $trade_id;
+                    if ($subject_id > 0) $page_params['subject_id'] = $subject_id;
+                    if (!empty($difficulty)) $page_params['difficulty'] = $difficulty;
+                ?>
+                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                    <a class="page-link" href="questions.php?<?= http_build_query($page_params) ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+                
+                <?php 
+                if ($end_page < $total_pages): 
+                    if ($end_page < $total_pages - 1): 
+                ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <li class="page-item"><a class="page-link" href="questions.php?page=<?= $total_pages ?><?= !empty($search) ? '&search=' . urlencode($search) : '' ?><?= $trade_id > 0 ? '&trade_id=' . $trade_id : '' ?><?= $subject_id > 0 ? '&subject_id=' . $subject_id : '' ?><?= !empty($difficulty) ? '&difficulty=' . urlencode($difficulty) : '' ?>"><?= $total_pages ?></a></li>
+                <?php endif; ?>
+                
+                <?php 
+                // Next button
+                if ($page < $total_pages): 
+                    $next_params = ['page' => $page + 1];
+                    if (!empty($search)) $next_params['search'] = $search;
+                    if ($trade_id > 0) $next_params['trade_id'] = $trade_id;
+                    if ($subject_id > 0) $next_params['subject_id'] = $subject_id;
+                    if (!empty($difficulty)) $next_params['difficulty'] = $difficulty;
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="questions.php?<?= http_build_query($next_params) ?>">Next</a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </div>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

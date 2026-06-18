@@ -71,7 +71,7 @@ try {
  * Handle Stripe webhook
  */
 function handleWebhook() {
-    global $conn;
+    global $pdo;
     
     $webhook_secret = getenv('STRIPE_WEBHOOK_SECRET') ?: 'whsec_test_123';
     $payload = @file_get_contents('php://input');
@@ -92,9 +92,8 @@ function handleWebhook() {
                 VALUES (?, ?, 'active', NOW(), DATE_ADD(NOW(), INTERVAL 1 MONTH))
             ";
             
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param('is', $user_id, $plan);
-            $stmt->execute();
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$user_id, $plan]);
             
             // Record payment
             $payment_query = "
@@ -105,16 +104,14 @@ function handleWebhook() {
             $amount = ($plan === 'enterprise' ? 29900 : 9900);
             $stripe_id = $payment_intent['id'];
             
-            $payment_stmt = $conn->prepare($payment_query);
-            $payment_stmt->bind_param('isis', $user_id, $plan, $amount, $stripe_id);
-            $payment_stmt->execute();
+            $payment_stmt = $pdo->prepare($payment_query);
+            $payment_stmt->execute([$user_id, $plan, $amount, $stripe_id]);
             
             // Send confirmation email
-            $email_query = "SELECT email FROM users WHERE user_id = ?";
-            $email_stmt = $conn->prepare($email_query);
-            $email_stmt->bind_param('i', $user_id);
-            $email_stmt->execute();
-            $user = $email_stmt->get_result()->fetch_assoc();
+            $email_query = "SELECT email FROM users WHERE id = ?";
+            $email_stmt = $pdo->prepare($email_query);
+            $email_stmt->execute([$user_id]);
+            $user = $email_stmt->fetch(PDO::FETCH_ASSOC);
             
             // Email notification code here
         }

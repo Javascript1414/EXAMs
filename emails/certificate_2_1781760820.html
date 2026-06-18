@@ -1,0 +1,209 @@
+
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #333; 
+                background-color: #f5f5f5;
+            }
+            .container { 
+                max-width: 700px; 
+                margin: 0 auto; 
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .header { 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                color: white; 
+                padding: 40px 30px; 
+                text-align: center; 
+            }
+            .header h1 { 
+                margin: 0; 
+                font-size: 28px;
+                font-weight: 300;
+            }
+            .header p { 
+                margin: 10px 0 0 0;
+                font-size: 14px;
+                opacity: 0.9;
+            }
+            .content { 
+                padding: 40px; 
+            }
+            .greeting {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+            .details-box { 
+                background: #f8f9fa; 
+                border-left: 4px solid #667eea;
+                padding: 20px; 
+                margin: 25px 0;
+                border-radius: 4px;
+            }
+            .detail-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid #eee;
+            }
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+            .detail-label {
+                font-weight: 600;
+                color: #666;
+            }
+            .detail-value {
+                color: #333;
+            }
+            .buttons { 
+                text-align: center; 
+                margin: 30px 0;
+                padding: 30px 0;
+                border-top: 1px solid #eee;
+                border-bottom: 1px solid #eee;
+            }
+            .btn { 
+                display: inline-block;
+                padding: 14px 30px; 
+                margin: 8px;
+                text-decoration: none; 
+                border-radius: 5px;
+                color: white; 
+                font-weight: 600;
+                font-size: 14px;
+                transition: transform 0.2s;
+            }
+            .btn:hover {
+                transform: translateY(-2px);
+            }
+            .btn-primary { 
+                background: #667eea;
+            }
+            .btn-primary:hover {
+                background: #5568d3;
+            }
+            .btn-success { 
+                background: #28a745;
+            }
+            .btn-success:hover {
+                background: #218838;
+            }
+            .verification-code {
+                background: #fff3cd;
+                border: 1px solid #ffc107;
+                padding: 15px;
+                border-radius: 4px;
+                margin: 20px 0;
+                text-align: center;
+            }
+            .verification-code p {
+                margin: 0 0 5px 0;
+                font-size: 12px;
+                color: #666;
+            }
+            .verification-code .code {
+                font-family: 'Courier New', monospace;
+                font-size: 18px;
+                font-weight: bold;
+                color: #856404;
+            }
+            .footer { 
+                text-align: center; 
+                color: #999; 
+                font-size: 12px; 
+                padding: 20px;
+                border-top: 1px solid #eee;
+                background: #f8f9fa;
+            }
+            .footer p {
+                margin: 5px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1>🎉 Congratulations!</h1>
+                <p>Your Certificate is Ready</p>
+            </div>
+            
+            <div class='content'>
+                <div class='greeting'>
+                    <p>Dear <strong>Test Student</strong>,</p>
+                    <p>You have successfully completed the exam and earned your certificate! We are pleased to confirm that you have achieved excellent results.</p>
+                </div>
+                
+                <div class='details-box'>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Certificate ID:</span>
+                        <span class='detail-value'><strong>CITS/26-27/Y/1414/A1</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Student Name:</span>
+                        <span class='detail-value'>Test Student</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Enrollment No:</span>
+                        <span class='detail-value'>1414</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Course:</span>
+                        <span class='detail-value'>CITS - General Education</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Exam:</span>
+                        <span class='detail-value'>Dummy Exam - 2026-06-18 10:47</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Marks Obtained:</span>
+                        <span class='detail-value'><strong>32/32</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Percentage:</span>
+                        <span class='detail-value'><strong>100.00%</strong></span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='detail-label'>Grade:</span>
+                        <span class='detail-value'><strong style='color: #28a745; font-size: 16px;'>A+ (Excellent)</strong></span>
+                    </div>
+                </div>
+                
+                <div class='verification-code'>
+                    <p>Certificate Verification Code:</p>
+                    <div class='code'>10C37FCA946D</div>
+                    <p style='margin-top: 8px; font-size: 11px;'>Use this code to verify your certificate</p>
+                </div>
+                
+                <div class='buttons'>
+                    <a href='http://localhost/EXAMs/student/certificate_view.php?id=2' class='btn btn-primary'>📄 View Certificate</a>
+                    <a href='http://localhost/EXAMs/student/certificate_view.php?id=2&download=1' class='btn btn-success'>⬇️ Download PDF</a>
+                </div>
+                
+                <div style='color: #666; font-size: 14px; line-height: 1.6;'>
+                    <p><strong>Next Steps:</strong></p>
+                    <ul style='padding-left: 20px;'>
+                        <li>Download and save your certificate</li>
+                        <li>Share your verification code for certification</li>
+                        <li>Keep your Enrollment No for future reference</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class='footer'>
+                <p><strong>EXAMs Learning System</strong></p>
+                <p>National Skill Training Institute, Kolkata</p>
+                <p style='color: #ccc; margin-top: 10px;'>
+                    <a href='http://localhost/EXAMs/verify.php?code=10C37FCA946D' style='color: #667eea; text-decoration: none;'>Verify Certificate Online</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    

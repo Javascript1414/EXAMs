@@ -48,8 +48,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $page_title = 'Manage Videos';
 require_once __DIR__ . '/../../includes/header.php';
 
+// Pagination
+$page = max(1, (int)($_GET['page'] ?? 1));
+$videos_per_page = 5;
+
 // Get all videos
 try {
+    // Count total videos
+    $count_result = $pdo->query("SELECT COUNT(*) as total FROM videos")->fetch();
+    $total_videos = $count_result['total'];
+    $total_pages = ceil($total_videos / $videos_per_page);
+    
+    // Ensure page is within bounds
+    if ($page > $total_pages && $total_pages > 0) {
+        $page = $total_pages;
+    }
+    
+    $offset = ($page - 1) * $videos_per_page;
+    
     $videos = $pdo->query("
         SELECT 
             v.id, 
@@ -67,12 +83,47 @@ try {
         LEFT JOIN courses c ON v.course_id = c.course_id
         LEFT JOIN users u ON v.instructor_id = u.id
         ORDER BY v.created_at DESC
+        LIMIT $videos_per_page OFFSET $offset
     ")->fetchAll();
 } catch (PDOException $e) {
     $videos = [];
     $error = "Failed to load videos: " . $e->getMessage();
 }
 ?>
+
+<style>
+    .table tbody td, .table thead th {
+        font-size: 15px;
+        padding: 12px 8px;
+    }
+    .table thead th {
+        font-weight: 700;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .badge {
+        font-size: 13px;
+        padding: 5px 8px;
+    }
+    .btn-group-sm .btn {
+        font-size: 13px;
+        padding: 5px 8px;
+    }
+    .h3 {
+        font-size: 24px;
+        font-weight: 600;
+    }
+    .text-muted {
+        font-size: 14px;
+    }
+    .pagination .page-link {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f1f3f5;
+    }
+</style>
 
 <div class="container-fluid py-4">
     <div class="row mb-4">
@@ -86,7 +137,7 @@ try {
                     <i data-lucide="upload-cloud" class="me-1"></i> Upload Video
                 </a>
             </div>
-            <p class="text-muted mt-2">Total Videos: <?php echo count($videos); ?></p>
+            <p class="text-muted mt-2">Total Videos: <?php echo $total_videos; ?></p>
         </div>
     </div>
 
@@ -104,6 +155,11 @@ try {
             No videos uploaded yet. <a href="<?= BASE_URL ?>/admin/videos/upload.php">Upload your first video</a>
         </div>
     <?php else: ?>
+        <!-- Results Info -->
+        <div class="mb-3 text-muted small">
+            Showing <?= $total_videos > 0 ? (($page - 1) * $videos_per_page) + 1 : 0 ?> to <?= min($page * $videos_per_page, $total_videos) ?> of <?= $total_videos ?> videos
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead class="table-light">
@@ -179,6 +235,56 @@ try {
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                <?php 
+                // Previous button
+                if ($page > 1): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="list.php?page=<?= $page - 1 ?>">Previous</a>
+                </li>
+                <?php endif; ?>
+                
+                <?php 
+                // Page numbers with smart range
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+                
+                if ($start_page > 1): 
+                ?>
+                <li class="page-item"><a class="page-link" href="list.php?page=1">1</a></li>
+                <?php if ($start_page > 2): ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; endif; ?>
+                
+                <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                    <a class="page-link" href="list.php?page=<?= $i ?>"><?= $i ?></a>
+                </li>
+                <?php endfor; ?>
+                
+                <?php 
+                if ($end_page < $total_pages): 
+                    if ($end_page < $total_pages - 1): 
+                ?>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
+                <li class="page-item"><a class="page-link" href="list.php?page=<?= $total_pages ?>"><?= $total_pages ?></a></li>
+                <?php endif; ?>
+                
+                <?php 
+                // Next button
+                if ($page < $total_pages): 
+                ?>
+                <li class="page-item">
+                    <a class="page-link" href="list.php?page=<?= $page + 1 ?>">Next</a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
     <?php endif; ?>
 </div>
 

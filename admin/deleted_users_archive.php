@@ -60,7 +60,7 @@ $total_records = $pagination['total_records'];
 $current_page = $pagination['current_page'];
 
 // Get unique roles for filter dropdown
-$roles_result = $pdo->query("SELECT DISTINCT role_name FROM deleted_users_archive WHERE restored_at IS NULL ORDER BY role_name");
+$roles_result = $pdo->query("SELECT DISTINCT name as role_name FROM roles ORDER BY name");
 $available_roles = $roles_result ? $roles_result->fetchAll(PDO::FETCH_ASSOC) : [];
 
 require_once __DIR__ . '/../includes/header.php';
@@ -170,7 +170,6 @@ require_once __DIR__ . '/../includes/sidebar.php';
         </div>
         
         <!-- Pagination -->
-        <?php if ($total_pages > 1): ?>
         <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">
                 <?php if ($current_page > 1): ?>
@@ -218,7 +217,6 @@ require_once __DIR__ . '/../includes/sidebar.php';
                 <?php endif; ?>
             </ul>
         </nav>
-        <?php endif; ?>
     </div>
 </div>
 

@@ -111,7 +111,29 @@ CREATE TABLE IF NOT EXISTS `study_materials` (
     INDEX `idx_uploaded_by` (`uploaded_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 8. Community Posts Table
+-- 8. Notes Table
+CREATE TABLE IF NOT EXISTS `notes` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `trade_id` INT UNSIGNED NOT NULL,
+    `subject_id` INT UNSIGNED NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `description` TEXT NULL,
+    `file_path` VARCHAR(255) NOT NULL,
+    `uploaded_by` BIGINT UNSIGNED NOT NULL,
+    `status` ENUM('active', 'inactive') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`trade_id`) REFERENCES `trades`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`subject_id`) REFERENCES `subjects`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`uploaded_by`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    INDEX `idx_trade_id` (`trade_id`),
+    INDEX `idx_subject_id` (`subject_id`),
+    INDEX `idx_uploaded_by` (`uploaded_by`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. Community Posts Table
 CREATE TABLE IF NOT EXISTS `community_posts` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNSIGNED NOT NULL,
@@ -131,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `community_posts` (
     INDEX `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 9. Community Post Comments Table
+-- 10. Community Post Comments Table
 CREATE TABLE IF NOT EXISTS `community_post_comments` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `post_id` BIGINT UNSIGNED NOT NULL,
@@ -147,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `community_post_comments` (
     INDEX `idx_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 10. Community Post Ratings Table
+-- 11. Community Post Ratings Table
 CREATE TABLE IF NOT EXISTS `community_post_ratings` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `post_id` BIGINT UNSIGNED NOT NULL,
