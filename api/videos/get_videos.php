@@ -2,27 +2,49 @@
 /**
  * Video API - Get Videos
  */
-session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    die(json_encode(['success' => false, 'message' => 'Unauthorized']));
-}
+require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
-require_once '../../config.php';
+header('Content-Type: application/json');
+
+requireLogin();
 
 try {
-    $videos = [
-        ['video_id' => 1, 'title' => 'Introduction to Calculus', 'duration' => 1200, 'views' => 2340, 'rating' => 4.8, 'instructor' => 'Dr. Johnson', 'course' => 'Mathematics', 'thumbnail' => '/assets/images/video1.jpg', 'progress' => 65],
-        ['video_id' => 2, 'title' => 'Photosynthesis Explained', 'duration' => 900, 'views' => 1890, 'rating' => 4.6, 'instructor' => 'Prof. Smith', 'course' => 'Biology', 'thumbnail' => '/assets/images/video2.jpg', 'progress' => 0],
-        ['video_id' => 3, 'title' => 'English Grammar Basics', 'duration' => 1500, 'views' => 3240, 'rating' => 4.9, 'instructor' => 'Ms. Brown', 'course' => 'English', 'thumbnail' => '/assets/images/video3.jpg', 'progress' => 100],
-        ['video_id' => 4, 'title' => 'Python Programming 101', 'duration' => 2400, 'views' => 5120, 'rating' => 4.7, 'instructor' => 'Mr. Davis', 'course' => 'Computer Science', 'thumbnail' => '/assets/images/video4.jpg', 'progress' => 45],
-        ['video_id' => 5, 'title' => 'World History: Medieval Period', 'duration' => 1800, 'views' => 1560, 'rating' => 4.5, 'instructor' => 'Prof. Wilson', 'course' => 'History', 'thumbnail' => '/assets/images/video5.jpg', 'progress' => 0]
-    ];
+    $stmt = $pdo->prepare("
+        SELECT 
+            v.id as video_id,
+            v.video_name as title,
+            v.description,
+            v.video_file,
+            v.duration,
+            v.views,
+            v.rating,
+            v.total_ratings,
+            v.created_at,
+            c.course_name as course,
+            u.full_name as instructor,
+            COALESCE(wh.watch_percentage, 0) as progress
+        FROM videos v
+        LEFT JOIN courses c ON v.course_id = c.course_id
+        LEFT JOIN users u ON v.instructor_id = u.id
+        LEFT JOIN video_watch_history wh ON v.id = wh.video_id AND wh.student_id = ?
+        WHERE v.status = 'active'
+        ORDER BY v.created_at DESC
+        LIMIT 20
+    ");
     
-    echo json_encode(['success' => true, 'videos' => $videos]);
+    $stmt->execute([$_SESSION['user_id']]);
+    $videos = $stmt->fetchAll();
     
-} catch (Exception $e) {
+    echo json_encode([
+        'success' => true,
+        'videos' => $videos
+    ]);
+} catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to fetch videos: ' . $e->getMessage()
+    ]);
 }

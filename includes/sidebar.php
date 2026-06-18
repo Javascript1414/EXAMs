@@ -36,6 +36,7 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/admin/trades.php"><i data-lucide="briefcase"></i> Trades</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/subjects.php"><i data-lucide="library"></i> Subjects</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/analytics_dashboard.php"><i data-lucide="bar-chart-3"></i> Advanced Analytics</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/videos/list.php"><i data-lucide="video"></i> Manage Videos</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>

@@ -1,0 +1,561 @@
+/**
+ * Enhanced Video Card - YouTube Style
+ * Complete with thumbnail, progress, metadata, and actions
+ */
+
+.video-item {
+    padding: 0;
+    border-right: none;
+    border-bottom: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-width: auto;
+    width: 100%;
+    flex-shrink: 1;
+    height: auto;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Dark Mode - No change needed, background is already transparent */
+html[data-theme="dark"] .video-item,
+body[data-theme="dark"] .video-item {
+    background: transparent;
+}
+
+.video-item:hover {
+    transform: translateY(-4px);
+}
+
+.video-item.active {
+    background: transparent;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
+    border-radius: 8px;
+}
+
+/* ============================================
+   YOUTUBE-STYLE VIDEO CARD CONTAINER
+   ============================================ */
+
+.video-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .video-card,
+body[data-theme="dark"] .video-card {
+    background: #1a1a1a !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.video-item:hover .video-card {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Dark Mode Hover - Higher Specificity */
+html[data-theme="dark"] .video-item:hover .video-card,
+body[data-theme="dark"] .video-item:hover .video-card {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ============================================
+   THUMBNAIL WITH OVERLAY
+   ============================================ */
+
+.video-thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Play Icon on Thumbnail */
+.play-icon {
+    color: #fff;
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.video-item:hover .play-icon {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+/* Duration Badge - Bottom Right */
+.duration-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 5;
+    backdrop-filter: blur(2px);
+}
+
+/* Quality Badge - Top Right */
+.quality-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+    z-index: 5;
+    backdrop-filter: blur(2px);
+    text-transform: uppercase;
+}
+
+.quality-badge.hd {
+    background: rgba(220, 50, 50, 0.9);
+}
+
+.quality-badge.uhd {
+    background: rgba(30, 144, 255, 0.9);
+}
+
+/* Verified Badge */
+.verified-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(25, 118, 210, 0.9);
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    backdrop-filter: blur(2px);
+}
+
+/* Watch Progress Bar */
+.progress-bar-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 4;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ff6b6b);
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* Action Buttons Overlay (visible on hover) */
+.card-overlay-buttons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 3;
+    padding: 10px;
+    flex-wrap: wrap;
+}
+
+.video-item:hover .card-overlay-buttons {
+    opacity: 1;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:hover {
+    background: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn.like {
+    color: #f44336;
+}
+
+.action-btn.like.liked {
+    background: #f44336;
+    color: #fff;
+}
+
+.action-btn.add-playlist {
+    color: #1976d2;
+}
+
+.action-btn.more {
+    color: #666;
+}
+
+/* ============================================
+   CARD CONTENT SECTION
+   ============================================ */
+
+.video-card-content {
+    padding: 10px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+}
+
+/* Title */
+.video-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+    color: #222;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    transition: color 0.3s ease;
+}
+
+/* Dark Mode - Override */
+html[data-theme="dark"] .video-card-title,
+body[data-theme="dark"] .video-card-title {
+    color: #fff !important;
+}
+
+.video-item:hover .video-card-title {
+    color: #007bff;
+}
+
+/* Dark Mode Hover */
+html[data-theme="dark"] .video-item:hover .video-card-title,
+body[data-theme="dark"] .video-item:hover .video-card-title {
+    color: #45b7ff !important;
+}
+
+.video-item.active .video-card-title {
+    color: #007bff;
+}
+
+/* Instructor/Channel Info */
+.video-card-instructor-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    align-self: flex-start;
+}
+
+.video-card-instructor {
+    font-size: 10px;
+    color: #666;
+    margin: 0;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .video-card-instructor,
+body[data-theme="dark"] .video-card-instructor {
+    color: #999 !important;
+}
+
+.instructor-verified-icon {
+    color: #1976d2;
+    font-size: 9px;
+}
+
+/* Metadata Row (Views, Rating, Uploaded) */
+.video-card-meta {
+    font-size: 9px;
+    color: #999;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+}
+
+/* Dark Mode - Override */
+html[data-theme="dark"] .video-card-meta,
+body[data-theme="dark"] .video-card-meta {
+    color: #666 !important;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.meta-separator {
+    color: #ccc;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .meta-separator,
+body[data-theme="dark"] .meta-separator {
+    color: #444 !important;
+}
+
+/* Watch Percentage */
+.watch-percentage {
+    font-size: 9px;
+    color: #666;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .watch-percentage,
+body[data-theme="dark"] .watch-percentage {
+    background: #222 !important;
+    color: #aaa !important;
+}
+
+/* Rating Stars */
+.rating-stars {
+    color: #ff9800;
+    font-size: 9px;
+}
+
+/* Hover Info Tooltip */
+.card-hover-info {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(32, 32, 32, 0.95);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 10px;
+    white-space: nowrap;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.video-item:hover .card-hover-info {
+    opacity: 1;
+}
+
+.card-hover-info::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(32, 32, 32, 0.95);
+}
+
+/* Three Dots Menu */
+.more-menu {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+    font-size: 18px;
+    background: none;
+    border: none;
+    color: #666;
+    z-index: 10;
+    padding: 5px;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .more-menu,
+body[data-theme="dark"] .more-menu {
+    color: #aaa !important;
+}
+
+.video-item:hover .more-menu {
+    opacity: 1;
+}
+
+.more-menu:hover {
+    color: #333;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Dark Mode Hover - Higher Specificity */
+html[data-theme="dark"] .more-menu:hover,
+body[data-theme="dark"] .more-menu:hover {
+    color: #fff !important;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    display: none;
+    min-width: 180px;
+    overflow: hidden;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .dropdown-menu,
+body[data-theme="dark"] .dropdown-menu {
+    background: #2a2a2a !important;
+    border-color: #444 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dropdown-menu.active {
+    display: block;
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 11px;
+    color: #333;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Dark Mode - Higher Specificity */
+html[data-theme="dark"] .dropdown-item,
+body[data-theme="dark"] .dropdown-item {
+    color: #ccc !important;
+}
+
+.dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+/* Dark Mode Hover - Higher Specificity */
+html[data-theme="dark"] .dropdown-item:hover,
+body[data-theme="dark"] .dropdown-item:hover {
+    background: #333 !important;
+}
+
+.dropdown-item.danger {
+    color: #f44336;
+}
+
+/* Dark Mode Danger - Higher Specificity */
+html[data-theme="dark"] .dropdown-item.danger,
+body[data-theme="dark"] .dropdown-item.danger {
+    color: #ef5350 !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .video-card-title {
+        font-size: 11px;
+    }
+    
+    .video-card-instructor {
+        font-size: 9px;
+    }
+    
+    .video-card-meta {
+        font-size: 8px;
+    }
+    
+    .duration-badge {
+        font-size: 10px;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-overlay-buttons {
+        gap: 10px;
+    }
+    
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+}

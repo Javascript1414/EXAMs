@@ -51,6 +51,9 @@ $classAttr = !empty($htmlClasses) ? ' class="' . implode(' ', $htmlClasses) . '"
             dashboardView: '<?= htmlspecialchars($userDashboardView) ?>',
             language: '<?= htmlspecialchars($userLanguage) ?>'
         };
+        
+        // Store BASE_URL for JavaScript access
+        window.BASE_URL = '<?= BASE_URL ?>';
     </script>
     
     <style>

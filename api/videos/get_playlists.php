@@ -2,26 +2,34 @@
 /**
  * Video API - Get Playlists
  */
-session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    die(json_encode(['success' => false, 'message' => 'Unauthorized']));
-}
+require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
-require_once '../../config.php';
+header('Content-Type: application/json');
+
+requireLogin();
 
 try {
-    $playlists = [
-        ['playlist_id' => 1, 'name' => 'Mathematics Learning Path', 'video_count' => 12, 'created_at' => date('Y-m-d')],
-        ['playlist_id' => 2, 'name' => 'Science Fundamentals', 'video_count' => 8, 'created_at' => date('Y-m-d', strtotime('-1 week'))],
-        ['playlist_id' => 3, 'name' => 'Programming Basics', 'video_count' => 15, 'created_at' => date('Y-m-d', strtotime('-2 weeks'))],
-        ['playlist_id' => 4, 'name' => 'English Skills', 'video_count' => 6, 'created_at' => date('Y-m-d', strtotime('-3 weeks'))]
-    ];
+    $stmt = $pdo->prepare("
+        SELECT 
+            c.course_id as playlist_id,
+            c.course_name as name,
+            COUNT(v.id) as video_count,
+            c.created_at
+        FROM courses c
+        LEFT JOIN videos v ON c.course_id = v.course_id AND v.status = 'active'
+        GROUP BY c.course_id
+        ORDER BY c.created_at DESC
+        LIMIT 10
+    ");
+    
+    $stmt->execute();
+    $playlists = $stmt->fetchAll();
     
     echo json_encode(['success' => true, 'playlists' => $playlists]);
     
-} catch (Exception $e) {
+} catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }

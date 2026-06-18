@@ -2,26 +2,35 @@
 /**
  * Video API - Get Watch History
  */
-session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    die(json_encode(['success' => false, 'message' => 'Unauthorized']));
-}
+require_once __DIR__ . '/../../includes/db.php';
+require_once __DIR__ . '/../../includes/functions.php';
 
-require_once '../../config.php';
+header('Content-Type: application/json');
+
+requireLogin();
 
 try {
-    $history = [
-        ['video_id' => 1, 'title' => 'Introduction to Calculus', 'duration' => 1200, 'watched' => 900, 'timestamp' => date('Y-m-d H:i:s', strtotime('-2 days'))],
-        ['video_id' => 2, 'title' => 'Photosynthesis Explained', 'duration' => 900, 'watched' => 450, 'timestamp' => date('Y-m-d H:i:s', strtotime('-5 days'))],
-        ['video_id' => 3, 'title' => 'English Grammar Basics', 'duration' => 1500, 'watched' => 1500, 'timestamp' => date('Y-m-d H:i:s', strtotime('-1 week'))],
-        ['video_id' => 4, 'title' => 'Python Programming 101', 'duration' => 2400, 'watched' => 1200, 'timestamp' => date('Y-m-d H:i:s', strtotime('-3 days'))]
-    ];
+    $stmt = $pdo->prepare("
+        SELECT 
+            v.id as video_id,
+            v.video_name as title,
+            v.duration,
+            wh.total_watched as watched,
+            wh.last_watched_at as timestamp
+        FROM video_watch_history wh
+        LEFT JOIN videos v ON wh.video_id = v.id
+        WHERE wh.student_id = ?
+        ORDER BY wh.last_watched_at DESC
+        LIMIT 10
+    ");
+    
+    $stmt->execute([$_SESSION['user_id']]);
+    $history = $stmt->fetchAll();
     
     echo json_encode(['success' => true, 'history' => $history]);
     
-} catch (Exception $e) {
+} catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
