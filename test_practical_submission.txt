@@ -1,0 +1,14 @@
+This is a test practical exam submission.
+
+Student: Test User
+Subject: Database
+Trade: CSA
+Date: 2026-06-20
+
+Work Details:
+- Completed all required tasks
+- Tested the solution
+- Ready for evaluation
+
+Notes:
+This is a sample submission for testing the practical exam system.

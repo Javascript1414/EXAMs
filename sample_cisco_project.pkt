@@ -1,0 +1,14 @@
+CISCO PACKET TRACER PROJECT FILE
+================================
+
+Network Topology:
+- Router: R1
+- Switches: S1, S2
+- End Devices: PC0, PC1, PC2, PC3
+
+Configuration:
+R1 (0/0): 192.168.1.1/24
+R1 (0/1): 192.168.2.1/24
+
+This is a sample Cisco network configuration file
+Students can submit their Cisco Packet Tracer projects

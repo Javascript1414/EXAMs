@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Database Credentials
-define('DB_HOST', '127.0.0.1:3307');
+define('DB_HOST', 'localhost:3307');
 define('DB_NAME', 'exams_lms');
 define('DB_USER', 'root');
 define('DB_PASS', '');

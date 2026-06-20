@@ -108,9 +108,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
 <div class="container-fluid px-0">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-dark mb-0">Manage Exams</h3>
-        <a href="exam_add.php" class="btn btn-primary btn-sm d-inline-flex align-items-center">
-            <i data-lucide="plus" class="me-2" style="width: 16px; height: 16px;"></i> Create Exam
-        </a>
+        <div class="d-flex gap-2">
+            <a href="google_form_exams.php" class="btn btn-outline-info btn-sm d-inline-flex align-items-center">
+                <i data-lucide="globe" class="me-2" style="width: 16px; height: 16px;"></i> Google Form Exams
+            </a>
+            <a href="exam_add.php" class="btn btn-primary btn-sm d-inline-flex align-items-center">
+                <i data-lucide="plus" class="me-2" style="width: 16px; height: 16px;"></i> Create Exam
+            </a>
+        </div>
     </div>
     
     <?php displayFlashMessages(); ?>

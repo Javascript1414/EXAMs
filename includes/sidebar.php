@@ -44,9 +44,13 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/admin/notes.php"><i data-lucide="file-text"></i> Study Notes</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/practical_exams.php"><i data-lucide="clipboard-list"></i> Practical Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/google_form_exams.php"><i data-lucide="globe"></i> Google Form Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/material_analytics.php"><i data-lucide="bar-chart-3"></i> Material Analytics</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/certificate_config.php"><i data-lucide="settings"></i> Certificate Config</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/maintenance_control.php"><i data-lucide="wrench"></i> Maintenance Mode</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/deployment_dashboard.php"><i data-lucide="rocket"></i> Deployment</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/release_certificates.php"><i data-lucide="file-check"></i> Release Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/notifications.php"><i data-lucide="bell-ring"></i> Notifications</a></li>
@@ -59,6 +63,7 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/admin/notes.php"><i data-lucide="file-text"></i> Study Notes</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/questions.php"><i data-lucide="help-circle"></i> Question Bank</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="file-text"></i> Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/practical_exams.php"><i data-lucide="clipboard-list"></i> Practical Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/results.php"><i data-lucide="bar-chart"></i> Exam Results</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/material_analytics.php"><i data-lucide="bar-chart-3"></i> Material Analytics</a></li>
                     <li><a href="<?= BASE_URL ?>/admin/release_certificates.php"><i data-lucide="file-check"></i> Release Certificates</a></li>
@@ -66,11 +71,19 @@ if (isLoggedIn()) {
                     <li><a href="#"><i data-lucide="pen-tool"></i> Grade Answers</a></li>
                     <li><a href="<?= BASE_URL ?>/moderator/community.php"><i data-lucide="shield-alert"></i> Moderation</a></li>
                     <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>
+                <?php elseif (hasRole('teacher')): ?>
+                    <li><a href="<?= BASE_URL ?>/teacher/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                    <li><a href="<?= BASE_URL ?>/admin/exams.php"><i data-lucide="edit-3"></i> Create Exam</a></li>
+                    <li><a href="<?= BASE_URL ?>/teacher/practical_exams.php"><i data-lucide="clipboard-list"></i> Practical Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/teacher/practical_mark_submissions.php"><i data-lucide="check-circle"></i> Mark Practical</a></li>
+                    <li><a href="<?= BASE_URL ?>/teacher/submissions.php"><i data-lucide="file-text"></i> Submissions</a></li>
+                    <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>
                 <?php elseif (hasRole('student')): ?>
                     <li><a href="<?= BASE_URL ?>/student/index.php"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
                     <li><a href="<?= BASE_URL ?>/student/progress.php"><i data-lucide="trending-up"></i> My Progress</a></li>
                     <li><a href="<?= BASE_URL ?>/student/materials.php"><i data-lucide="book-open"></i> Study Materials</a></li>
                     <li><a href="<?= BASE_URL ?>/student/notes.php"><i data-lucide="file-text"></i> Study Notes</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/google_form_exams.php"><i data-lucide="globe"></i> Google Form Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/student/recommendations.php"><i data-lucide="sparkles"></i> Recommendations</a></li>
                     <li><a href="<?= BASE_URL ?>/student/ai_recommendations.php"><i data-lucide="brain"></i> AI Recommendations</a></li>
                     <li><a href="<?= BASE_URL ?>/student/video_streaming.php"><i data-lucide="video"></i> Video Learning</a></li>
@@ -79,6 +92,7 @@ if (isLoggedIn()) {
                     <li><a href="<?= BASE_URL ?>/student/subscription.php"><i data-lucide="credit-card"></i> Premium</a></li>
                     <li><a href="<?= BASE_URL ?>/student/bookmarks.php"><i data-lucide="bookmark"></i> Bookmarks</a></li>
                     <li><a href="<?= BASE_URL ?>/student/exams.php"><i data-lucide="edit-3"></i> My Exams</a></li>
+                    <li><a href="<?= BASE_URL ?>/student/practical_exams.php"><i data-lucide="clipboard-list"></i> Practical Exams</a></li>
                     <li><a href="<?= BASE_URL ?>/student/results.php"><i data-lucide="bar-chart"></i> My Results</a></li>
                     <li><a href="<?= BASE_URL ?>/student/certificates.php"><i data-lucide="award"></i> Certificates</a></li>
                     <li><a href="<?= BASE_URL ?>/community/index.php"><i data-lucide="globe"></i> Global Community</a></li>

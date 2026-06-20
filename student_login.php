@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['full_name']  = $user['full_name'];
                     $_SESSION['role_name']  = $user['role_name'];
                     $_SESSION['role']       = $user['role_name']; // Compatibility fallback
+                    $_SESSION['trade_id']   = $user['trade_id']; // Set student's trade for practical exams
                     
                     redirectDashboard($user['role_name']);
                 }

@@ -17,7 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
         $user_id = (int)($_POST['user_id'] ?? 0);
 
-        if ($user_id > 0 && $user_id !== $_SESSION['user_id']) { // Prevent self-modification
+        // Allow self-approval and rejection, but prevent self-blocking/unblocking/deletion
+        $allowSelfAction = in_array($action, ['approve', 'reject']);
+        $canProceed = ($user_id > 0 && ($allowSelfAction || $user_id !== $_SESSION['user_id']));
+        
+        if ($canProceed) {
             if ($action === 'block') {
                 $pdo->prepare("UPDATE users SET status = 'suspended' WHERE id = ?")->execute([$user_id]);
                 $_SESSION['success_message'] = "User has been blocked.";

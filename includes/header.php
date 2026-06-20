@@ -2,6 +2,10 @@
 // Ensure core functions and session are loaded
 require_once __DIR__ . '/functions.php';
 
+// Check maintenance mode
+require_once __DIR__ . '/maintenance_middleware.php';
+checkMaintenanceMode();
+
 // Get user's theme preference if logged in
 $userTheme = 'light';
 $userDashboardView = 'grid';

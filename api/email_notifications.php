@@ -4,10 +4,10 @@
  * Allows administrators to resend emails, view logs, and manage notifications
  */
 
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/includes/db.php';
-require_once __DIR__ . '/includes/functions.php';
-require_once __DIR__ . '/includes/notification_emails.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/notification_emails.php';
 
 // Require admin login
 requireLogin();

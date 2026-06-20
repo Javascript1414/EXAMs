@@ -1,10 +1,12 @@
 <?php
-require_once __DIR__ . '/includes/db.php';
-require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Check if user is admin
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role_name']) || $_SESSION['role_name'] !== 'admin') {
-    redirect('/login.php');
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role_name']) || !in_array($_SESSION['role_name'], ['admin', 'superadmin', 'moderator'])) {
+    header('Location: ' . BASE_URL . '/login.php');
+    exit;
 }
 
 // Get all exams

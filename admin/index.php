@@ -126,6 +126,14 @@ require_once __DIR__ . '/../includes/sidebar.php';
                     <i data-lucide="edit-3"></i>
                     <span>Create Exam</span>
                 </a>
+                <a href="<?= BASE_URL ?>/admin/google_form_exams.php" class="action-btn">
+                    <i data-lucide="globe"></i>
+                    <span>Google Forms</span>
+                </a>
+                <a href="<?= BASE_URL ?>/admin/exams.php" class="action-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>CITS LMS Dashboard</span>
+                </a>
                 <a href="<?= BASE_URL ?>/admin/questions.php" class="action-btn">
                     <i data-lucide="help-circle"></i>
                     <span>Add Questions</span>

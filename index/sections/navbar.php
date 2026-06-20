@@ -1,7 +1,7 @@
-<!-- NAVBAR -->
+<!-- NAVBAR - Production Ready -->
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
 <div class="container">
-<a class="navbar-brand" href="">NSTI HOWRAH</a>
+<a class="navbar-brand" href="<?= BASE_URL ?>"><?= APP_NAME ?> - NSTI HOWRAH</a>
 
 <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
 <span class="navbar-toggler-icon"></span>
@@ -9,7 +9,7 @@
 
 <div class="collapse navbar-collapse" id="menu">
 <ul class="navbar-nav ms-auto">
-<li class="nav-item"><a class="nav-link nav-link-home" href="#">🏠 Home</a></li>
+<li class="nav-item"><a class="nav-link nav-link-home" href="<?= BASE_URL ?>">🏠 Home</a></li>
 
 <li class="nav-item dropdown">
 <a class="nav-link dropdown-toggle nav-link-courses" href="#" data-bs-toggle="dropdown">📚 Courses</a>
@@ -22,7 +22,7 @@
 </li>
 
 <li class="nav-item"><a class="nav-link nav-link-special" href="#">📋 Admissions</a></li>
-<li class="nav-item"><a class="nav-link nav-link-highlight" href="http://localhost/exams/login.php">👤 Users</a></li>
+<li class="nav-item"><a class="nav-link nav-link-highlight" href="<?= BASE_URL ?>/login.php">👤 Users</a></li>
 </ul>
 </div>
 </div>
